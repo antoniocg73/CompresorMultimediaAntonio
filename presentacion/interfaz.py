@@ -168,6 +168,11 @@ Builder.load_string("""
     Label: # Label para mostrar el estado de la compresión
         id: status  # Identificador para mostrar el estado de la compresión
         text: "" 
+                    
+    Widget: # Espacio en blanco para separar los elementos
+        size_hint_y: None  # Desactivar el ajuste automático de altura
+        height: '20dp'  # Ajustar el espacio entre el Label y el BoxLayout
+
 """)
 
 class CompressorInterface(BoxLayout):
