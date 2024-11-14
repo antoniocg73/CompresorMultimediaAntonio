@@ -12,11 +12,12 @@ import shutil
 Tk().withdraw()
 
 # Establecemos el tamaño específico de la ventana
-Window.size = (850, 600)  # Cambia 800 y 600 por el tamaño deseado
+Window.size = (850, 600)  
 Window.icon = 'imagenes/reposteria.png'
+
 # Establecemos el tamaño mínimo de la ventana
-Window.minimum_width = 850  # Ancho mínimo
-Window.minimum_height = 600  # Alto mínimo
+Window.minimum_width = 850  
+Window.minimum_height = 600  
 
 
 
@@ -28,16 +29,16 @@ Builder.load_string("""
     canvas.before:
         Color:
             rgba: 1, 0.6, 0.2, 1  # Color naranja para el fondo
-        Rectangle:
-            pos: self.pos
+        Rectangle:  
+            pos: self.pos 
             size: self.size
     
     # Logo de la aplicación (imagen)
-    FloatLayout:
+    FloatLayout: # Diseño de superposición para las imágenes
         Image:
             source: 'imagenes/reposteria.png'  # Ruta de la imagen
             size_hint: None, None
-            size: 100, 100  # Ajusta el tamaño de la imagen
+            size: 100, 100  # Tamaño de la imagen
             pos: 0, root.height - 100  # Esquina superior izquierda
 
         Image:
@@ -62,37 +63,37 @@ Builder.load_string("""
     # Label para mostrar el tipo de archivo seleccionado
     Label:
         text: "Selecciona el tipo de archivo"
-        size_hint_y: None
+        size_hint_y: None # Desactivar el ajuste automático de altura
         height: '30dp'
 
     # BoxLayout para mostrar los botones de tipo de archivo
     BoxLayout:
         orientation: 'horizontal' 
         spacing: 10 
-        id: file_buttons  # Añadir un id para poder acceder a los botones
+        id: file_buttons  
 
-        Button:
+        Button: # Botón para seleccionar opción de imagen	
             text: "Imagen"
             on_release: root.set_file_type("Imagen", self)
             background_normal: ''
             background_color: (1, 0.6, 0.2, 1) if root.file_type == "Imagen" else (0.8, 0.4, 0, 1)
             color: 1, 1, 1, 1
 
-        Button:
+        Button:  # Botón para seleccionar opción de video
             text: "Video"
             on_release: root.set_file_type("Video", self)
             background_normal: ''
             background_color: (1, 0.6, 0.2, 1) if root.file_type == "Video" else (0.8, 0.4, 0, 1)
             color: 1, 1, 1, 1
 
-        Button:
+        Button: # Botón para seleccionar opción de audio
             text: "Audio"
             on_release: root.set_file_type("Audio", self)
             background_normal: ''
             background_color: (1, 0.6, 0.2, 1) if root.file_type == "Audio" else (0.8, 0.4, 0, 1)
             color: 1, 1, 1, 1
 
-    Button:
+    Button: # Botón para abrir el navegador de archivos
         text: "Abrir navegador de archivos" 
         on_release: root.open_file_dialog()  # Abre el diálogo de archivos
         background_normal: ''
@@ -108,27 +109,27 @@ Builder.load_string("""
         size_hint_y: None 
         height: '30dp'  # Altura de la etiqueta
 
-    Widget:
+    Widget: # Espacio en blanco para separar los elementos
         size_hint_y: None  # Desactivar el ajuste automático de altura
         height: '20dp'  # Ajustar el espacio entre el Label y el BoxLayout
 
-    BoxLayout:
+    BoxLayout: # BoxLayout para el nivel de compresión
         orientation: 'horizontal'
         spacing: 10
 
-        Label:
+        Label: 
             text: "Nivel de compresión (50 - mínima, 100 - máxima):"  
             size_hint_x: 0.6
 
-        Button:
+        Button: # Botón para disminuir el nivel de compresión
             size_hint_x: 0.2
             width: '40dp'
             background_normal: 'imagenes/LeftArrow.png'
             background_color: 0.8, 0.4, 0, 1
             color: 1, 1, 1, 1
             on_press: root.decrease_compression()
-
-        TextInput:
+ 
+        TextInput: # TextInput para ingresar el nivel de compresión
             id: quality
             text: str(root.compression_level)  # Mostrar el nivel de compresión actual
             font_size: '25sp'
@@ -137,14 +138,13 @@ Builder.load_string("""
             width: '40dp'
             height: '20dp'  # Ajustar la altura para que el TextInput sea más bajo
             halign: 'center'  # Centrar el texto horizontalmente
-            valign: 'middle'  # Centrar el texto verticalmente
             padding_y: [25, 25]  # Espaciado vertical para centrar el texto
             input_filter: 'int'  # Solo permitir enteros
             multiline: False  # Evitar que el texto ocupe varias líneas
-            on_text_validate: root.validate_compression_level()
-            on_focus: if not self.focus: root.validate_compression_level()
+            on_text_validate: root.validate_compression_level() # Validar el valor ingresado
+            on_focus: if not self.focus: root.validate_compression_level() # Validar al perder el foco
             
-        Button:
+        Button: # Botón para aumentar el nivel de compresión
             size_hint_x: 0.2
             width: '40dp'
             background_normal: 'imagenes/RightArrow.png'
@@ -152,27 +152,31 @@ Builder.load_string("""
             color: 1, 1, 1, 1
             on_press: root.increase_compression()
 
-    Button:
-        text: "Comprimir archivo"
-        on_release: root.compress_file(root.selected_file, int(quality.text))
-        background_normal: ''
-        background_color: 0.8, 0.4, 0, 1
-        color: 1, 1, 1, 1
-        on_press: self.background_color = 1, 0.278, 0, 1
-        on_release: self.background_color = 0.8, 0.4, 0, 1
+    Widget: # Espacio en blanco para separar los elementos
+        size_hint_y: None  # Desactivar el ajuste automático de altura
+        height: '20dp'  # Ajustar el espacio entre el Label y el BoxLayout
 
-    Label:
+    Button: # Botón para comprimir el archivo
+        text: "Comprimir archivo"
+        on_release: root.compress_file(root.selected_file, int(quality.text)) # Comprimir el archivo seleccionado
+        background_normal: '' 
+        background_color: 0.8, 0.4, 0, 1 
+        color: 1, 1, 1, 1
+        on_press: self.background_color = 1, 0.278, 0, 1 # Cambiar el color al presionar
+        on_release: self.background_color = 0.8, 0.4, 0, 1 # Restablecer el color al soltar
+
+    Label: # Label para mostrar el estado de la compresión
         id: status  # Identificador para mostrar el estado de la compresión
         text: "" 
 """)
 
 class CompressorInterface(BoxLayout):
-    selected_file = StringProperty("No se ha seleccionado ningún archivo") 
+    selected_file = StringProperty("No se ha seleccionado ningún archivo") # Variable para la ruta del archivo seleccionado
     file_type = StringProperty("")  # Variable para el tipo de archivo seleccionado
     compression_level = NumericProperty(50)  # Nivel de compresión inicial en 50
 
+    #Establece el tipo de archivo seleccionado, cambia el color del botón y deselecciona otros en las opciones de archivo.
     def set_file_type(self, file_type, button):
-        """ Establece el tipo de archivo seleccionado, cambia el color del botón y deselecciona otros. """
         self.file_type = file_type
         # Desactivar la selección de otros botones
         for btn in self.ids.file_buttons.children:
@@ -180,8 +184,8 @@ class CompressorInterface(BoxLayout):
         # Resaltar el botón seleccionado
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
 
+    #Abre el diálogo de archivos para seleccionar un archivo según el tipo seleccionado.
     def open_file_dialog(self):
-        """Abre el diálogo de archivos para seleccionar un archivo según el tipo seleccionado."""
         if self.file_type == "Imagen":
             file_path = askopenfilename(filetypes=[("Imágenes", "*.png;*.jpg;*.jpeg")])
         elif self.file_type == "Video":
@@ -191,28 +195,28 @@ class CompressorInterface(BoxLayout):
         else:
             file_path = None
         
-        if file_path:
+        if file_path: # Si se selecciona un archivo, actualizar la ruta del archivo
             self.selected_file = file_path
-            self.ids.file_path.text = f"Archivo seleccionado: {file_path}"
+            self.ids.file_path.text = f"Archivo seleccionado: {file_path}" # Actualizar la etiqueta de la ruta
 
+    #Aumenta el nivel de compresión en 1 hasta un máximo de 100.
     def increase_compression(self):
-        #Aumenta el nivel de compresión en 1 hasta un máximo de 100.
         if self.compression_level < 100:
             self.compression_level += 1
             self.update_quality()
 
+    #Disminuye el nivel de compresión en 1 hasta un mínimo de 1.
     def decrease_compression(self):
-        #Disminuye el nivel de compresión en 1 hasta un mínimo de 1.
         if self.compression_level > 50:
             self.compression_level -= 1
             self.update_quality()
 
+    #Actualizar el texto en el TextInput y cualquier etiqueta asociada
     def update_quality(self):
-        # Actualizar el texto en el TextInput y cualquier etiqueta asociada
         self.ids.quality.text = str(self.compression_level)
 
+    #Valida el nivel de compresión ingresado en el TextInput.
     def validate_compression_level(self):
-        # Validar el valor ingresado en el TextInput
         new_value = int(self.ids.quality.text)  # Obtener el valor del TextInput
         if 50 <= new_value <= 100:
             self.compression_level = new_value
@@ -220,14 +224,17 @@ class CompressorInterface(BoxLayout):
             self.reset_compression_level()
             #self.ids.quality.text = str(self.compression_level)  # Restablecer al valor válido
 
+    #Restablece el nivel de compresión al valor predeterminado.
     def reset_compression_level(self):
         self.compression_level = 50
         self.update_quality()
     
+    #Restablece la ruta del archivo seleccionado después de un retraso de 3 segundos.
     def reset_file_path_with_delay(self):
     #Programar el restablecimiento del texto con un retraso de 3 segundos.
         Clock.schedule_once(lambda dt: self.reset_file_path(), 3)
 
+    #Restablece la ruta del archivo seleccionado.
     def reset_file_path(self):
         self.selected_file = "No se ha seleccionado ningún archivo"
         self.ids.file_path.text = self.selected_file
