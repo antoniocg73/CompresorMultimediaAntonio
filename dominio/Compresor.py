@@ -44,10 +44,12 @@ class Compresor:
                 save_path = save_path.replace('.bmp', '.png')
                 img.save(save_path, output_format, compress_level=int((100 - quality) / 10))
 
-            elif file_extension == '.tiff':
+            elif file_extension == '.tiff': # Convertir TIFF a JPEG para reducir tamaño
                 output_format = 'TIFF'
-                # TIFF con compresión LZW
-                img.save(save_path, output_format, compression="tiff_lzw")
+                compression_mode = 'tiff_lzw'  # Método de compresión sin pérdida
+                
+                # Guardar el archivo TIFF con compresión LZW
+                img.save(save_path, output_format, compression=compression_mode)
 
             elif file_extension == '.gif':
                 output_format = 'GIF'

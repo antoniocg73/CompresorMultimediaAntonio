@@ -5,6 +5,7 @@ from kivy.properties import StringProperty, NumericProperty
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from kivy.core.window import Window
+from sqlalchemy import false
 from dominio.Compresor import Compresor
 import shutil
 
@@ -118,15 +119,17 @@ Builder.load_string("""
         spacing: 10
 
         Label: 
+            id: compression_label
             text: "Nivel de compresión (50 - mínima, 100 - máxima):"  
             size_hint_x: 0.6
 
         Button: # Botón para disminuir el nivel de compresión
+            id: decrease_button
             size_hint_x: 0.2
             width: '40dp'
             background_normal: 'imagenes/LeftArrow.png'
             background_color: 0.8, 0.4, 0, 1
-            color: 1, 1, 1, 1
+            color: 1, 1, 1, 1 
             on_press: root.decrease_compression()
  
         TextInput: # TextInput para ingresar el nivel de compresión
@@ -145,6 +148,7 @@ Builder.load_string("""
             on_focus: if not self.focus: root.validate_compression_level() # Validar al perder el foco
             
         Button: # Botón para aumentar el nivel de compresión
+            id: increase_button
             size_hint_x: 0.2
             width: '40dp'
             background_normal: 'imagenes/RightArrow.png'
@@ -200,6 +204,44 @@ class CompressorInterface(BoxLayout):
         else:
             file_path = None
         
+        # Verificar si el archivo es .tiff (usando endswith)
+        if file_path.lower().endswith(".tiff"):
+            # Ocultar o deshabilitar el TextInput
+            self.ids.quality.opacity = 0  # Ocultar el TextInput
+            self.ids.quality.height = 0
+            # Ocultar los botones
+            self.ids.decrease_button.opacity = 0  # Hacer invisibles los botones
+            self.ids.decrease_button.size_hint_x = None  # Quitar el espacio horizontal
+            self.ids.decrease_button.width = 0  # Ajustar el ancho a 0
+            self.ids.increase_button.opacity = 0
+            self.ids.increase_button.size_hint_x = None
+            self.ids.increase_button.width = 0
+
+
+            # Mostrar un mensaje opcional
+            self.ids.compression_label.text = "No hay opción de nivel de compresión para archivos TIFF."
+            self.ids.compression_label.halign = 'center'  # Centrar el texto horizontalmente
+            self.ids.compression_label.size_hint_x = None  # Permitir que el label ocupe todo el espacio
+            self.ids.compression_label.width = self.width  # Ajustar el ancho del label al ancho de la ventana
+            
+        else:
+            # Restaurar el TextInput para otros archivos
+            self.ids.quality.opacity = 1
+            self.ids.quality.height = '20dp'
+            
+            # Restaurar los botones
+            self.ids.decrease_button.opacity = 1  # Hacer visibles los botones
+            self.ids.decrease_button.size_hint_x = 0.2  # Restaurar tamaño horizontal
+            self.ids.decrease_button.width = '40dp'  # Restaurar ancho
+            self.ids.increase_button.opacity = 1
+            self.ids.increase_button.size_hint_x = 0.2
+            self.ids.increase_button.width = '40dp'
+            
+            # Limpiar cualquier mensaje previo
+            self.ids.compression_label.text = "Nivel de compresión (50 - mínima, 100 - máxima):"
+            self.ids.compression_label.halign = 'left'  # Restaurar alineación original
+            self.ids.compression_label.size_hint_x = 0.6  # Reducir el ancho para ajustarse al contenido
+
         if file_path: # Si se selecciona un archivo, actualizar la ruta del archivo
             self.selected_file = file_path
             self.ids.file_path.text = f"Archivo seleccionado: {file_path}" # Actualizar la etiqueta de la ruta
