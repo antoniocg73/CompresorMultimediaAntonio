@@ -36,13 +36,16 @@ class Compresor:
 
             elif file_extension == '.png':
                 output_format = 'PNG'
-                img.save(save_path, output_format, compress_level=int((100 - quality) / 10))
+                img.save(save_path, output_format, compress_level=int((100 - (quality+1)) / 10))
 
-            elif file_extension == '.bmp':
-                # Convertir BMP a PNG para reducir tamaño
-                output_format = 'PNG'
-                save_path = save_path.replace('.bmp', '.png')
-                img.save(save_path, output_format, compress_level=int((100 - quality) / 10))
+            elif file_extension == '.bmp': #ARREGLAR
+                output_format = 'PNG'  # Usar PNG en lugar de BMP
+
+                # Determinar el nivel de compresión para PNG
+                compress_level = int((100 - quality) / 10)  # Ajustar el nivel de compresión (0 a 9)
+
+                # Guardar la imagen en formato PNG
+                img.save(save_path.replace('.bmp', '.png'), 'PNG', compress_level=compress_level)
 
             elif file_extension == '.tiff': # Convertir TIFF a JPEG para reducir tamaño
                 output_format = 'TIFF'
@@ -58,7 +61,7 @@ class Compresor:
                 prev_frame = None
 
                 # Usar `quality` para determinar el número de colores
-                num_colors = max(32, 256 - int((100 - quality) * 2))  # Asegurarse de que haya al menos 32 colores
+                num_colors = max(32, 256 - int((100 - quality+1) * 2))  # Asegurarse de que haya al menos 32 colores
 
                 # Iterar sobre los fotogramas de la imagen GIF
                 for frame in ImageSequence.Iterator(img):

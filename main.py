@@ -1,6 +1,5 @@
 from kivy.app import App
 from presentacion.interfaz import CompressorInterface
-from dominio.Compresor import Compresor
 from tkinter.filedialog import asksaveasfilename
 
 class CompressorApp(App):

@@ -330,11 +330,11 @@ class CompressorInterface(BoxLayout):
         # (100 - quality + 1) -> Invertimos la lógica de calidad: 1 (menor compresión) a 100 (mayor compresión)
 
         if self.file_type == "Imagen" and filepath.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')):
-            result = compressor.compress_image(filepath, (100 - quality + 1), save_path)
+            result = compressor.compress_image(filepath, (100 - quality), save_path)
         elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi')):
-            result = compressor.compress_video(filepath, (100 - quality + 1), save_path)
+            result = compressor.compress_video(filepath, (100 - quality), save_path)
         elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.wav')):
-            result = compressor.compress_audio(filepath, (100 - quality + 1), save_path)
+            result = compressor.compress_audio(filepath, (100 - quality), save_path)
         else:
             self.ids.status.text = "Formato de archivo no compatible."
             return
