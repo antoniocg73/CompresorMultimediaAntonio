@@ -1,4 +1,4 @@
-from PIL import Image  # Módulo `Image` de la biblioteca PIL (Pillow).
+from PIL import Image, ImageSequence  # Módulo `Image` de la biblioteca PIL (Pillow).
 import cv2  # OpenCV (`cv2`), una biblioteca para procesar imágenes y videos.
 import os
 from persistencia.guardar_archivo import GuardarArchivo  # Clase para guardar archivos.
@@ -27,21 +27,62 @@ class Compresor:
             if save_path is None:
                 save_path = filepath.replace(file_extension, f'_compressed{file_extension}')
 
-            # Definir formato de salida según extensión.
+            # Definimos formato de salida según extensión y realizamos la compresión.
             if file_extension in ['.jpg', '.jpeg']:
                 output_format = 'JPEG'
                 if img.mode == 'RGBA':
                     img = img.convert('RGB')  # Convertir a RGB si es necesario para JPEG.
+                img.save(save_path, output_format, quality=quality)
+
             elif file_extension == '.png':
                 output_format = 'PNG'
+                img.save(save_path, output_format, compress_level=int((100 - quality) / 10))
+
+            elif file_extension == '.bmp':
+                # Convertir BMP a PNG para reducir tamaño
+                output_format = 'PNG'
+                save_path = save_path.replace('.bmp', '.png')
+                img.save(save_path, output_format, compress_level=int((100 - quality) / 10))
+
+            elif file_extension == '.tiff':
+                output_format = 'TIFF'
+                # TIFF con compresión LZW
+                img.save(save_path, output_format, compression="tiff_lzw")
+
+            elif file_extension == '.gif':
+                output_format = 'GIF'
+                # Lista de frames optimizados
+                frames = []
+                prev_frame = None
+
+                # Usar `quality` para determinar el número de colores
+                num_colors = max(32, 256 - int((100 - quality) * 2))  # Asegurarse de que haya al menos 32 colores
+
+                # Iterar sobre los fotogramas de la imagen GIF
+                for frame in ImageSequence.Iterator(img):
+                    # Convertir el fotograma a una paleta reducida de colores según `quality`
+                    frame = frame.convert("P", palette=Image.ADAPTIVE, colors=num_colors)
+
+                    # Compara el fotograma actual con el fotograma anterior
+                    if prev_frame and frame.tobytes() == prev_frame.tobytes():
+                        continue  # Si es muy similar al anterior, omitirlo
+                    
+                    # Agregar el fotograma a la lista de frames
+                    frames.append(frame)
+                    prev_frame = frame  # Actualizar el fotograma anterior
+
+                # Guardar el GIF animado comprimido con optimización
+                frames[0].save(
+                    save_path, 
+                    save_all=True, 
+                    append_images=frames[1:],  # Añadir los fotogramas restantes
+                    optimize=True,  # Optimizar el tamaño del archivo
+                    duration=img.info['duration'],  # Mantener la duración original de cada fotograma
+                    loop=0  # Mantener la animación en bucle
+                )
+                
             else:
                 return False, "Formato de imagen no compatible para compresión."
-
-            # Guardar imagen con calidad especificada.
-            if output_format == 'JPEG':
-                img.save(save_path, output_format, quality=quality)
-            elif output_format == 'PNG':
-                img.save(save_path, output_format, compress_level=int((100 - quality) / 10))
 
             # Guardar con persistencia.
             GuardarArchivo().guardar_archivo(save_path)
