@@ -12,3 +12,4 @@ class GuardarArchivo:
     
     def obtenerExtension(self, filepath):
         return os.path.splitext(filepath)[1].lower()  # Obtener la extensión.
+    

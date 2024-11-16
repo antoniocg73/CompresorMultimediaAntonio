@@ -106,7 +106,7 @@ class Compresor:
             original_width, original_height = video.size
 
             # Calculamos el nuevo tamaño en función de la calidad (porcentaje)
-            new_height = 1080  # Altura fija de 1080p
+            new_height = min(1080, original_height)  # Usar 1080p o mantener la altura original si es menor
             new_width = int(original_width * new_height / original_height)  # Mantener la proporción de la relación de aspecto
 
             # Redimensionar el video
@@ -128,20 +128,20 @@ class Compresor:
                 video_codec = 'mpeg4'    # Códec MPEG4 para AVI
                 audio_codec = 'aac'      # Códec AAC para audio
             elif file_extension == 'mov': #NO VA
-                video_codec = 'prores'   # Códec ProRes para MOV
+                video_codec = 'libx264'   # Códec ProRes para MOV
                 audio_codec = 'aac'      # Códec AAC para audio
             elif file_extension == 'mkv':
                 video_codec = 'libx264'  # Códec H.264 para MKV
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'wmv':
+            elif file_extension == 'wmv': #ESTE CODEC NO VA EL WMAV2
                 video_codec = 'wmv2'     # Códec WMV para WMV
-                audio_codec = 'wmav2'    # Códec WMV para audio
-            elif file_extension == 'flv':
+                audio_codec = 'aac'    # Códec WMV para audio
+            elif file_extension == 'flv': 
                 video_codec = 'flv'      # Códec FLV
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'webm':
+            elif file_extension == 'webm': #ESTE CODEC DE AUDIO NO VA EL OPUS
                 video_codec = 'libvpx-vp9' # Códec VP9 para WebM
-                audio_codec = 'opus'      # Códec Opus para audio
+                audio_codec = 'aac'      # Códec Opus para audio
 
             # Escribir el video comprimido con audio intacto
             video_resized.write_videofile(save_path, codec=video_codec, audio_codec=audio_codec, threads=4, preset="fast")

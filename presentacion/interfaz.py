@@ -348,4 +348,6 @@ class CompressorInterface(BoxLayout):
             self.ids.status.text = result[1]  # Mostrar el mensaje de error
         self.reset_file_path_with_delay()
         self.reset_compression_level()
+
+    
             
