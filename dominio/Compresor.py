@@ -1,10 +1,12 @@
 from PIL import Image, ImageSequence  # Módulo `Image` de la biblioteca PIL (Pillow).
 import cv2  # OpenCV (`cv2`), una biblioteca para procesar imágenes y videos.
-import os
+from moviepy.editor import VideoFileClip
 from persistencia.guardar_archivo import GuardarArchivo  # Clase para guardar archivos.
 
 class Compresor:
     """Clase `Compresor` para comprimir imágenes y videos con almacenamiento opcional."""
+    def __init__(self):
+        self.guardarArchivo = GuardarArchivo()
 
     def compress_image(self, filepath, quality, save_path=None):
         """
@@ -21,7 +23,7 @@ class Compresor:
         """
         try:
             img = Image.open(filepath)  # Abrir imagen original.
-            file_extension = os.path.splitext(filepath)[1].lower()  # Obtener la extensión.
+            file_extension = self.guardarArchivo.obtenerExtension(filepath)  # Obtener extensión del archivo.
 
             # Generar ruta de salida si no se proporciona `save_path`.
             if save_path is None:
@@ -46,7 +48,6 @@ class Compresor:
 
                 # Guardar la imagen en formato PNG
                 img.save(save_path.replace('.bmp', '.png'), 'PNG', compress_level=compress_level)
-
             elif file_extension == '.tiff': # Convertir TIFF a JPEG para reducir tamaño
                 output_format = 'TIFF'
                 compression_mode = 'tiff_lzw'  # Método de compresión sin pérdida
@@ -90,55 +91,64 @@ class Compresor:
                 return False, "Formato de imagen no compatible para compresión."
 
             # Guardar con persistencia.
-            GuardarArchivo().guardar_archivo(save_path)
+            self.guardarArchivo.guardar_archivo(save_path)
             return True, save_path
 
         except Exception as e:
             return False, f"Error en la compresión de la imagen: {str(e)}"
 
     def compress_video(self, filepath, quality, save_path=None):
-        """
-        Comprime un video y lo guarda en la ubicación especificada.
-        
-        Parámetros:
-        - filepath: ruta del video original.
-        - quality: calidad (1-100) donde se redimensiona el video en porcentaje.
-        - save_path: ruta donde guardar el video comprimido. Si es None, se guarda junto a la original.
-
-        Retorna:
-        - (True, output_path): si la compresión es exitosa.
-        - (False, mensaje de error): si ocurre un error.
-        """
         try:
-            cap = cv2.VideoCapture(filepath)  # Abrir video original.
-            if not cap.isOpened():
-                return False, "No se pudo abrir el archivo de video."
+            # Cargar el archivo de video
+            video = VideoFileClip(filepath)
 
-            # Generar ruta de salida si no se proporciona `save_path`.
+            # Obtener las dimensiones originales
+            original_width, original_height = video.size
+
+            # Calculamos el nuevo tamaño en función de la calidad (porcentaje)
+            new_height = 1080  # Altura fija de 1080p
+            new_width = int(original_width * new_height / original_height)  # Mantener la proporción de la relación de aspecto
+
+            # Redimensionar el video
+            video_resized = video.resize(newsize=(new_width, new_height))
+
+            # Si no se especifica una ruta de salida, la generamos automáticamente
             if save_path is None:
-                file_extension = os.path.splitext(filepath)[1]
-                save_path = filepath.replace(file_extension, f'_compressed{file_extension}')
+                file_extension = filepath.split('.')[-1]
+                save_path = filepath.replace(f'.{file_extension}', f'_compressed.{file_extension}')
 
-            # Dimensiones del video redimensionado.
-            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) * quality / 100)
-            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) * quality / 100)
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Códec de salida.
-            video_compressed = cv2.VideoWriter(save_path, fourcc, 30, (width, height))
+            # Obtener la extensión del archivo y seleccionar los códecs apropiados
+            file_extension = filepath.split('.')[-1].lower()
 
-            while cap.isOpened():  # Leer y redimensionar fotogramas.
-                ret, frame = cap.read()
-                if not ret:
-                    break
-                resized_frame = cv2.resize(frame, (width, height))
-                video_compressed.write(resized_frame)
+            # Definir códecs según el formato del archivo
+            if file_extension == 'mp4':
+                video_codec = 'libx264'  # Códec H.264 para MP4
+                audio_codec = 'aac'      # Códec AAC para audio
+            elif file_extension == 'avi':
+                video_codec = 'mpeg4'    # Códec MPEG4 para AVI
+                audio_codec = 'aac'      # Códec AAC para audio
+            elif file_extension == 'mov':
+                video_codec = 'prores'   # Códec ProRes para MOV
+                audio_codec = 'aac'      # Códec AAC para audio
+            elif file_extension == 'mkv':
+                video_codec = 'libx264'  # Códec H.264 para MKV
+                audio_codec = 'aac'      # Códec AAC para audio
+            elif file_extension == 'wmv':
+                video_codec = 'wmv2'     # Códec WMV para WMV
+                audio_codec = 'wmav2'    # Códec WMV para audio
+            elif file_extension == 'flv':
+                video_codec = 'flv'      # Códec FLV
+                audio_codec = 'aac'      # Códec AAC para audio
+            elif file_extension == 'webm':
+                video_codec = 'libvpx-vp9' # Códec VP9 para WebM
+                audio_codec = 'opus'      # Códec Opus para audio
 
-            # Liberar archivos.
-            cap.release()
-            video_compressed.release()
+            # Escribir el video comprimido con audio intacto
+            video_resized.write_videofile(save_path, codec=video_codec, audio_codec=audio_codec, threads=4, preset="fast")
 
-            # Guardar con persistencia.
-            GuardarArchivo().guardar_archivo(save_path)
+            # Guardar con persistencia
+            self.guardarArchivo.guardar_archivo(save_path)
             return True, save_path
 
         except Exception as e:
-            return False, f"Error en la compresión del video: {str(e)}"
+            return False, f"Error al comprimir el video: {str(e)}"

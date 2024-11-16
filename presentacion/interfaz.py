@@ -180,9 +180,11 @@ Builder.load_string("""
 """)
 
 class CompressorInterface(BoxLayout):
+    
     selected_file = StringProperty("No se ha seleccionado ningún archivo") # Variable para la ruta del archivo seleccionado
     file_type = StringProperty("")  # Variable para el tipo de archivo seleccionado
     compression_level = NumericProperty(50)  # Nivel de compresión inicial en 50
+
 
     #Establece el tipo de archivo seleccionado, cambia el color del botón y deselecciona otros en las opciones de archivo.
     def set_file_type(self, file_type, button):
@@ -198,7 +200,7 @@ class CompressorInterface(BoxLayout):
         if self.file_type == "Imagen":
             file_path = askopenfilename(filetypes=[("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")])
         elif self.file_type == "Video":
-            file_path = askopenfilename(filetypes=[("Videos", "*.mp4;*.avi")])
+            file_path = askopenfilename(filetypes=[("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.flv;*.webm")])
         elif self.file_type == "Audio":
             file_path = askopenfilename(filetypes=[("Audios", "*.mp3;*.wav")])
         else:
@@ -303,7 +305,7 @@ class CompressorInterface(BoxLayout):
         if self.file_type == "Imagen":
             filetypes = [("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")]
         elif self.file_type == "Video":
-            filetypes = [("Video MP4", "*.mp4")]
+            filetypes = [("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.flv;*.webm")]
         elif self.file_type == "Audio":
             filetypes = [("Audio MP3", "*.mp3")]
         else:
@@ -331,8 +333,8 @@ class CompressorInterface(BoxLayout):
 
         if self.file_type == "Imagen" and filepath.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')):
             result = compressor.compress_image(filepath, (100 - quality), save_path)
-        elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi')):
-            result = compressor.compress_video(filepath, (100 - quality), save_path)
+        elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi','.mov', '.mkv', '.wmv', '.flv', '.webm')):
+            result = compressor.compress_video(filepath, (100 - quality+1), save_path)
         elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.wav')):
             result = compressor.compress_audio(filepath, (100 - quality), save_path)
         else:
@@ -340,10 +342,10 @@ class CompressorInterface(BoxLayout):
             return
 
         # Mostrar el mensaje de éxito si se completó la compresión
-        if result:
-            self.ids.status.text = f"Archivo comprimido guardado en: {save_path}"
+        if result[0]:
+            self.ids.status.text = f"Archivo comprimido guardado en: {result[1]}"
         else:
-            self.ids.status.text = "Error en la compresión."
+            self.ids.status.text = result[1]  # Mostrar el mensaje de error
         self.reset_file_path_with_delay()
         self.reset_compression_level()
             

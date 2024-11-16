@@ -9,3 +9,6 @@ class GuardarArchivo:
         else:
             print(f"Archivo no encontrado: {filepath}") # Para ver qué ruta no se encontró
             raise FileNotFoundError("El archivo no se pudo guardar correctamente.")
+    
+    def obtenerExtension(self, filepath):
+        return os.path.splitext(filepath)[1].lower()  # Obtener la extensión.
