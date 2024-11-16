@@ -127,7 +127,7 @@ class Compresor:
             elif file_extension == 'avi':
                 video_codec = 'mpeg4'    # Códec MPEG4 para AVI
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'mov':
+            elif file_extension == 'mov': #NO VA
                 video_codec = 'prores'   # Códec ProRes para MOV
                 audio_codec = 'aac'      # Códec AAC para audio
             elif file_extension == 'mkv':

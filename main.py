@@ -9,3 +9,4 @@ class CompressorApp(App):
 
 if __name__ == "__main__":
     CompressorApp().run()
+ 
