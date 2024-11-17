@@ -97,10 +97,13 @@ class Compresor:
         except Exception as e:
             return False, f"Error en la compresión de la imagen: {str(e)}"
 
-    def compress_video(self, filepath, quality, save_path=None):
+    def compress_video(self, filepath, save_path=None):
         try:
             # Cargar el archivo de video
             video = VideoFileClip(filepath)
+
+            # Obtener la extensión del archivo y seleccionar los códecs apropiados
+            file_extension = self.guardarArchivo.obtenerExtension(filepath)
 
             # Obtener las dimensiones originales
             original_width, original_height = video.size
@@ -116,32 +119,28 @@ class Compresor:
 
             # Si no se especifica una ruta de salida, la generamos automáticamente
             if save_path is None:
-                file_extension = filepath.split('.')[-1]
                 save_path = filepath.replace(f'.{file_extension}', f'_compressed.{file_extension}')
 
-            # Obtener la extensión del archivo y seleccionar los códecs apropiados
-            file_extension = filepath.split('.')[-1].lower()
-
             # Definir códecs según el formato del archivo
-            if file_extension == 'mp4': #FUNCIONA
+            if file_extension == '.mp4': #FUNCIONA
                 video_codec = 'libx264'  # Códec H.264 para MP4
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'avi': #FUNCIONA
+            elif file_extension == '.avi': #FUNCIONA
                 video_codec = 'mpeg4'    # Códec MPEG4 para AVI
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'mov': #FUNCIONA
+            elif file_extension == '.mov': #FUNCIONA
                 video_codec = 'libx264'   # Códec ProRes para MOV
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'mkv': #FUNCIONA
+            elif file_extension == '.mkv': #FUNCIONA
                 video_codec = 'libx264'  # Códec H.264 para MKV
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'wmv': #FUNCIONA
+            elif file_extension == '.wmv': #FUNCIONA
                 video_codec = 'wmv2'     # Códec WMV para WMV
                 audio_codec = 'aac'    # Códec WMV para audio
-            elif file_extension == 'mpeg': #FUNCIONA
+            elif file_extension == '.mpeg': #FUNCIONA
                 video_codec = 'mpeg2video' # Códec MPEG2 para MPEG
                 audio_codec = 'libmp3lame'  # Códec MP3 para audio
-            elif file_extension == 'webm': #FUNCIONA
+            elif file_extension == '.webm': #FUNCIONA
                 video_codec = 'libvpx' # Códec VP9 para WebM
                 audio_codec = 'libvorbis' # Códec Opus para audio
 
