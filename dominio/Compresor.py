@@ -105,12 +105,14 @@ class Compresor:
             # Obtener las dimensiones originales
             original_width, original_height = video.size
 
-            # Calculamos el nuevo tamaño en función de la calidad (porcentaje)
-            new_height = min(1080, original_height)  # Usar 1080p o mantener la altura original si es menor
-            new_width = int(original_width * new_height / original_height)  # Mantener la proporción de la relación de aspecto
+            # Escalar solo si es necesario
+            if original_height > 1080:
+                new_height = 1080
+                new_width = int(original_width * new_height / original_height)
+                video_resized = video.resize(newsize=(new_width, new_height))
+            else:
+                video_resized = video  # No redimensionar si ya es más pequeño
 
-            # Redimensionar el video
-            video_resized = video.resize(newsize=(new_width, new_height))
 
             # Si no se especifica una ruta de salida, la generamos automáticamente
             if save_path is None:
@@ -121,27 +123,27 @@ class Compresor:
             file_extension = filepath.split('.')[-1].lower()
 
             # Definir códecs según el formato del archivo
-            if file_extension == 'mp4':
+            if file_extension == 'mp4': #FUNCIONA
                 video_codec = 'libx264'  # Códec H.264 para MP4
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'avi':
+            elif file_extension == 'avi': #FUNCIONA
                 video_codec = 'mpeg4'    # Códec MPEG4 para AVI
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'mov': #NO VA
+            elif file_extension == 'mov': #FUNCIONA
                 video_codec = 'libx264'   # Códec ProRes para MOV
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'mkv':
+            elif file_extension == 'mkv': #FUNCIONA
                 video_codec = 'libx264'  # Códec H.264 para MKV
                 audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'wmv': #ESTE CODEC NO VA EL WMAV2
+            elif file_extension == 'wmv': #FUNCIONA
                 video_codec = 'wmv2'     # Códec WMV para WMV
                 audio_codec = 'aac'    # Códec WMV para audio
-            elif file_extension == 'flv': 
-                video_codec = 'flv'      # Códec FLV
-                audio_codec = 'aac'      # Códec AAC para audio
-            elif file_extension == 'webm': #ESTE CODEC DE AUDIO NO VA EL OPUS
-                video_codec = 'libvpx-vp9' # Códec VP9 para WebM
-                audio_codec = 'aac'      # Códec Opus para audio
+            elif file_extension == 'mpeg': #FUNCIONA
+                video_codec = 'mpeg2video' # Códec MPEG2 para MPEG
+                audio_codec = 'libmp3lame'  # Códec MP3 para audio
+            elif file_extension == 'webm': #FUNCIONA
+                video_codec = 'libvpx' # Códec VP9 para WebM
+                audio_codec = 'libvorbis' # Códec Opus para audio
 
             # Escribir el video comprimido con audio intacto
             video_resized.write_videofile(save_path, codec=video_codec, audio_codec=audio_codec, threads=4, preset="fast")

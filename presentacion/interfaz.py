@@ -200,7 +200,7 @@ class CompressorInterface(BoxLayout):
         if self.file_type == "Imagen":
             file_path = askopenfilename(filetypes=[("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")])
         elif self.file_type == "Video":
-            file_path = askopenfilename(filetypes=[("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.flv;*.webm")])
+            file_path = askopenfilename(filetypes=[("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.webm;*.mpeg")])
         elif self.file_type == "Audio":
             file_path = askopenfilename(filetypes=[("Audios", "*.mp3;*.wav")])
         else:
@@ -305,7 +305,7 @@ class CompressorInterface(BoxLayout):
         if self.file_type == "Imagen":
             filetypes = [("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")]
         elif self.file_type == "Video":
-            filetypes = [("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.flv;*.webm")]
+            filetypes = [("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.webm;*.mpeg")]
         elif self.file_type == "Audio":
             filetypes = [("Audio MP3", "*.mp3")]
         else:
@@ -333,7 +333,7 @@ class CompressorInterface(BoxLayout):
 
         if self.file_type == "Imagen" and filepath.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')):
             result = compressor.compress_image(filepath, (100 - quality), save_path)
-        elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi','.mov', '.mkv', '.wmv', '.flv', '.webm')):
+        elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi','.mov', '.mkv', '.wmv', '.webm', '.mpeg')):
             result = compressor.compress_video(filepath, (100 - quality+1), save_path)
         elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.wav')):
             result = compressor.compress_audio(filepath, (100 - quality), save_path)
