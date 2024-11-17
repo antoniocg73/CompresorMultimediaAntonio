@@ -194,6 +194,10 @@ class CompressorInterface(BoxLayout):
             btn.background_color = (0.8, 0.4, 0, 1)  # Resetear color
         # Resaltar el botón seleccionado
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
+        if self.file_type == "Video":
+            self.avoid_level_compression("No hay opción de nivel de compresión vídeos.")
+        else:
+            self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
 
     #Abre el diálogo de archivos para seleccionar un archivo según el tipo seleccionado.
     def open_file_dialog(self):
@@ -206,8 +210,17 @@ class CompressorInterface(BoxLayout):
         else:
             file_path = None
         
-        # Verificar si el archivo es .tiff (usando endswith)
+        # Verificar si el archivo seleccionado es un archivo TIFF para evitar la opción de nivel de compresión
         if file_path.lower().endswith(".tiff"):
+            self.avoid_level_compression("No hay opción de nivel de compresión para archivos TIFF.")
+        elif self.file_type != "Video": # Permitir el nivel de compresión para otros formatos sin tener en cuenta videos, ya que se ajusta en otro método
+            self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
+
+        if file_path: # Si se selecciona un archivo, actualizar la ruta del archivo
+            self.selected_file = file_path
+            self.ids.file_path.text = f"Archivo seleccionado: {file_path}" # Actualizar la etiqueta de la ruta
+
+    def avoid_level_compression(self, message):
             # Ocultar o deshabilitar el TextInput
             self.ids.quality.opacity = 0  # Ocultar el TextInput
             self.ids.quality.height = 0
@@ -221,12 +234,12 @@ class CompressorInterface(BoxLayout):
 
 
             # Mostrar un mensaje opcional
-            self.ids.compression_label.text = "No hay opción de nivel de compresión para archivos TIFF."
+            self.ids.compression_label.text = message
             self.ids.compression_label.halign = 'center'  # Centrar el texto horizontalmente
             self.ids.compression_label.size_hint_x = None  # Permitir que el label ocupe todo el espacio
             self.ids.compression_label.width = self.width  # Ajustar el ancho del label al ancho de la ventana
-            
-        else:
+    
+    def enter_compression_level(self, message):
             # Restaurar el TextInput para otros archivos
             self.ids.quality.opacity = 1
             self.ids.quality.height = '20dp'
@@ -240,13 +253,10 @@ class CompressorInterface(BoxLayout):
             self.ids.increase_button.width = '40dp'
             
             # Limpiar cualquier mensaje previo
-            self.ids.compression_label.text = "Nivel de compresión (50 - mínima, 100 - máxima):"
+            self.ids.compression_label.text = message
             self.ids.compression_label.halign = 'left'  # Restaurar alineación original
             self.ids.compression_label.size_hint_x = 0.6  # Reducir el ancho para ajustarse al contenido
 
-        if file_path: # Si se selecciona un archivo, actualizar la ruta del archivo
-            self.selected_file = file_path
-            self.ids.file_path.text = f"Archivo seleccionado: {file_path}" # Actualizar la etiqueta de la ruta
 
     #Aumenta el nivel de compresión en 1 hasta un máximo de 100.
     def increase_compression(self):
