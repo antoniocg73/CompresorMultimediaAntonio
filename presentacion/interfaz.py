@@ -109,10 +109,14 @@ Builder.load_string("""
         text: root.selected_file 
         size_hint_y: None 
         height: '30dp'  # Altura de la etiqueta
-
+        text_size: self.size  # Ajustar el texto al tamaño de la etiqueta
+        wrap: True  # Ajustar el texto si es demasiado largo
+        halign: 'center'  # Alineación horizontal (puedes cambiar a 'left' o 'right' según desees)
+        valign: 'middle'  # Alineación vertical
+                    
     Widget: # Espacio en blanco para separar los elementos
         size_hint_y: None  # Desactivar el ajuste automático de altura
-        height: '20dp'  # Ajustar el espacio entre el Label y el BoxLayout
+        height: '30dp'  # Ajustar el espacio entre el Label y el BoxLayout
 
     BoxLayout: # BoxLayout para el nivel de compresión
         orientation: 'horizontal'
@@ -158,7 +162,7 @@ Builder.load_string("""
 
     Widget: # Espacio en blanco para separar los elementos
         size_hint_y: None  # Desactivar el ajuste automático de altura
-        height: '20dp'  # Ajustar el espacio entre el Label y el BoxLayout
+        height: '30dp'  # Ajustar el espacio entre el Label y el BoxLayout
 
     Button: # Botón para comprimir el archivo
         text: "Comprimir archivo"
@@ -172,10 +176,14 @@ Builder.load_string("""
     Label: # Label para mostrar el estado de la compresión
         id: status  # Identificador para mostrar el estado de la compresión
         text: "" 
+        text_size: self.size  # Ajustar el texto al tamaño de la etiqueta
+        wrap: True  # Ajustar el texto si es demasiado largo
+        halign: 'center'  # Alineación horizontal (puedes cambiar a 'left' o 'right' según desees)
+        valign: 'middle'  # Alineación vertical
                     
     Widget: # Espacio en blanco para separar los elementos
         size_hint_y: None  # Desactivar el ajuste automático de altura
-        height: '20dp'  # Ajustar el espacio entre el Label y el BoxLayout
+        height: '30dp'  # Ajustar el espacio entre el Label y el BoxLayout
 
 """)
 
