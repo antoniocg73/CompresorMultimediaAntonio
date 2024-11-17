@@ -184,10 +184,12 @@ class CompressorInterface(BoxLayout):
     selected_file = StringProperty("No se ha seleccionado ningún archivo") # Variable para la ruta del archivo seleccionado
     file_type = StringProperty("")  # Variable para el tipo de archivo seleccionado
     compression_level = NumericProperty(50)  # Nivel de compresión inicial en 50
+    status = StringProperty("")  # Variable para el estado de la compresión
 
 
     #Establece el tipo de archivo seleccionado, cambia el color del botón y deselecciona otros en las opciones de archivo.
     def set_file_type(self, file_type, button):
+        self.reset_new_path_with_delay()
         self.file_type = file_type
         # Desactivar la selección de otros botones
         for btn in self.ids.file_buttons.children:
@@ -201,6 +203,7 @@ class CompressorInterface(BoxLayout):
 
     #Abre el diálogo de archivos para seleccionar un archivo según el tipo seleccionado.
     def open_file_dialog(self):
+        self.reset_new_path_with_delay()
         if self.file_type == "Imagen":
             file_path = askopenfilename(filetypes=[("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")])
         elif self.file_type == "Video":
@@ -293,19 +296,29 @@ class CompressorInterface(BoxLayout):
     #Programar el restablecimiento del texto con un retraso de 3 segundos.
         Clock.schedule_once(lambda dt: self.reset_file_path(), 3)
 
+    #Restablece la ruta del archivo seleccionado después de un retraso de 3 segundos.
+    def reset_new_path_with_delay(self):
+    #Programar el restablecimiento del texto con un retraso de 3 segundos.
+        Clock.schedule_once(lambda dt: self.reset_new_path(), 2)
+
     #Restablece la ruta del archivo seleccionado.
     def reset_file_path(self):
         self.selected_file = "No se ha seleccionado ningún archivo"
         self.ids.file_path.text = self.selected_file
+    
+    def reset_new_path(self):
+        self.status = ""
+        self.ids.status.text = self.status
 
     def compress_file(self, filepath, quality):
         #Comprimir el archivo según el tipo seleccionado y la calidad proporcionada.
         # Limpiar el texto del Label de estado al presionar el botón de compresión
-
-        self.ids.status.text = ""
+        self.status = ""
+        self.ids.status.text = self.status
         
         if not filepath or filepath == "No se ha seleccionado ningún archivo":
-            self.ids.status.text = "Seleccione un archivo para comprimir."
+            self.status = "Seleccione un archivo para comprimir."
+            self.ids.status.text = self.status
             return
 
         file_extension = filepath.split('.')[-1].lower()  # Obtiene la extensión en minúsculas
@@ -319,7 +332,8 @@ class CompressorInterface(BoxLayout):
         elif self.file_type == "Audio":
             filetypes = [("Audio MP3", "*.mp3")]
         else:
-            self.ids.status.text = "Formato de archivo no compatible."
+            self.status = "Formato de archivo no compatible."
+            self.ids.status.text = self.status
             return
 
         # Abrir diálogo de "Guardar como" con la extensión de archivo específica según el tipo seleccionado
@@ -329,7 +343,8 @@ class CompressorInterface(BoxLayout):
         )
 
         if not save_path:
-            self.ids.status.text = "Guardado cancelado."
+            self.status = "Guardado cancelado."
+            self.ids.status.text = self.status
             return  # Salir de la función si no se seleccionó una ruta de guardado
 
         # Agregar la extensión correcta al save_path si el usuario no la incluyó
@@ -348,14 +363,17 @@ class CompressorInterface(BoxLayout):
         elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.wav')):
             result = compressor.compress_audio(filepath, (100 - quality), save_path)
         else:
-            self.ids.status.text = "Formato de archivo no compatible."
+            self.status = "Formato de archivo no compatible."
+            self.ids.status.text = self.status
             return
 
         # Mostrar el mensaje de éxito si se completó la compresión
         if result[0]:
-            self.ids.status.text = f"Archivo comprimido guardado en: {result[1]}"
+            self.status = f"Archivo comprimido guardado en: {result[1]}"
+            self.ids.status.text = self.status
         else:
-            self.ids.status.text = result[1]  # Mostrar el mensaje de error
+            self.status = result[1]  # Mostrar el mensaje de error
+            self.ids.status.text = self.status  # Actualizar el texto del Label de estado
         self.reset_file_path_with_delay()
         self.reset_compression_level()
 
