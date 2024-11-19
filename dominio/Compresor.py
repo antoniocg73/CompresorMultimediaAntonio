@@ -192,24 +192,24 @@ class Compresor:
 
             # Exportar el archivo en el formato adecuado
             if file_format == 'mp3':
-                audio.export(save_path, format="mp3") #BIEN
+                audio.export(save_path, format="mp3") #Convierte a MP3
             elif file_format == 'aac': #BIEN
                 # Usamos ffmpeg para la conversión a AAC, ya que pydub no lo soporta bien
                 command = [
                     "ffmpeg", "-y", "-i", filepath, "-ar", str(sample_rate), "-ac", str(audio.channels), "-b:a", f"{quality}k", save_path
-                ]
+                ] #Comando para convertir a AAC
                 subprocess.run(command, check=True)
             elif file_format == 'wav': # PONER ALGUNO
                 pass
-            elif file_format == 'flac': #
+            elif file_format == 'flac': # PONER ALGUNO
                 pass
             elif file_format == 'ogg': #PONER ALGUNO
-                audio.export(save_path, format="ogg")
+                audio.export(save_path, format="ogg") #Convierte a OGG
             elif file_format == 'wma':
                 # Usamos ffmpeg para la conversión a WMA ya que pydub no lo soporta
                 command = [
-                    "ffmpeg", "-y", "-i", filepath, "-ar", str(sample_rate), "-ac", str(audio.channels), save_path
-                ]
+                    "ffmpeg", "-y", "-i", filepath, "-ar", str(sample_rate), "-ac", str(audio.channels), save_path 
+                ] #Comando para convertir a WMA
                 subprocess.run(command, check=True)
             else:
                 return False, f"Formato de archivo '{file_format}' no compatible."
