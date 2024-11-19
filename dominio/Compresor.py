@@ -1,15 +1,15 @@
 from PIL import Image, ImageSequence  # Módulo `Image` de la biblioteca PIL (Pillow).
 #import cv2  # OpenCV (`cv2`), una biblioteca para procesar imágenes y videos.
 from moviepy.editor import VideoFileClip
-from persistencia.guardar_archivo import GuardarArchivo  # Clase para guardar archivos.
+from persistencia.guardar_archivo import SaveFile  # Clase para guardar archivos.
 from pydub import AudioSegment  # Importar AudioSegment de la biblioteca pydub.
 import subprocess
 
 
-class Compresor:
+class Compressor:
     """Clase `Compresor` para comprimir imágenes y videos con almacenamiento opcional."""
     def __init__(self):
-        self.guardarArchivo = GuardarArchivo()
+        self.guardarArchivo = SaveFile()
 
     def compress_image(self, filepath, quality, save_path=None):
         """
@@ -26,7 +26,7 @@ class Compresor:
         """
         try:
             img = Image.open(filepath)  # Abrir imagen original.
-            file_extension = self.guardarArchivo.obtenerExtension(filepath)  # Obtener extensión del archivo.
+            file_extension = self.guardarArchivo.obtain_ext(filepath)  # Obtener extensión del archivo.
 
             # Generar ruta de salida si no se proporciona `save_path`.
             if save_path is None:
@@ -94,7 +94,7 @@ class Compresor:
                 return False, "Formato de imagen no compatible para compresión."
 
             # Guardar con persistencia.
-            self.guardarArchivo.guardar_archivo(save_path)
+            self.guardarArchivo.save_file(save_path)
             return True, save_path
 
         except Exception as e:
@@ -106,7 +106,7 @@ class Compresor:
             video = VideoFileClip(filepath)
 
             # Obtener la extensión del archivo y seleccionar los códecs apropiados
-            file_extension = self.guardarArchivo.obtenerExtension(filepath)
+            file_extension = self.guardarArchivo.obtain_ext(filepath)
 
             # Obtener las dimensiones originales
             original_width, original_height = video.size
@@ -151,7 +151,7 @@ class Compresor:
             video_resized.write_videofile(save_path, codec=video_codec, audio_codec=audio_codec, threads=4, preset="fast")
 
             # Guardar con persistencia
-            self.guardarArchivo.guardar_archivo(save_path)
+            self.guardarArchivo.save_file(save_path)
             return True, save_path
 
         except Exception as e:

@@ -6,8 +6,8 @@ from tkinter import Tk
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from kivy.core.window import Window
 from sqlalchemy import false
-from dominio.Compresor import Compresor
-import shutil
+from dominio.Compresor import Compressor
+
 
 # Ocultar la ventana principal de Tkinter, ya que solo se necesita el diálogo para seleccionar archivos y no toda la ventana.
 Tk().withdraw()
@@ -189,8 +189,12 @@ Builder.load_string("""
 
 """)
 
-class CompressorInterface(BoxLayout):
+class CompressorInterface(BoxLayout): 
     
+    def __init__(self, **kwargs): #
+        super().__init__(**kwargs)
+
+    #En Kivy, las propiedades como StringProperty, NumericProperty, y BooleanProperty no deben asignarse dentro del __init__ directamente.
     selected_file = StringProperty("No se ha seleccionado ningún archivo") # Variable para la ruta del archivo seleccionado
     file_type = StringProperty("")  # Variable para el tipo de archivo seleccionado
     compression_level = NumericProperty(50)  # Nivel de compresión inicial en 50
@@ -216,10 +220,10 @@ class CompressorInterface(BoxLayout):
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
 
     #Abre el diálogo de archivos para seleccionar un archivo según el tipo seleccionado.
-    def open_file_dialog(self):
+    def open_file_dialog(self): 
         self.reset_new_path_with_delay()
         if self.file_type == "Imagen":
-            file_path = askopenfilename(filetypes=[("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")])
+            file_path = askopenfilename(filetypes=[("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")]) 
         elif self.file_type == "Video":
             file_path = askopenfilename(filetypes=[("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.webm;*.mpeg")])
         elif self.file_type == "Audio":
@@ -294,13 +298,15 @@ class CompressorInterface(BoxLayout):
 
     #Valida el nivel de compresión ingresado en el TextInput.
     def validate_compression_level(self):
-        new_value = int(self.ids.quality.text)  # Obtener el valor del TextInput
-        if 50 <= new_value <= 100:
-            self.compression_level = new_value
-            self.ids.quality.focus = False  # Quitar el foco del TextInput
+        if self.ids.quality.text != "":
+            new_value = int(self.ids.quality.text)  # Obtener el valor del TextInput
+            if 50 <= new_value <= 100:
+                self.compression_level = new_value
+                self.ids.quality.focus = False  # Quitar el foco del TextInput
+            else:
+                self.reset_compression_level()
         else:
             self.reset_compression_level()
-            #self.ids.quality.text = str(self.compression_level)  # Restablecer al valor válido
 
     #Restablece el nivel de compresión al valor predeterminado.
     def reset_compression_level(self):
@@ -367,7 +373,7 @@ class CompressorInterface(BoxLayout):
         if not save_path.lower().endswith(file_extension):
             save_path += "."+ file_extension
 
-        compressor = Compresor()  # Instanciamos la clase Compresor desde la capa de dominio
+        compressor = Compressor()  # Instanciamos la clase Compresor desde la capa de dominio
         
         # Dependiendo del tipo de archivo seleccionado, llamamos al método correspondiente con la ruta final de guardado
         # (100 - quality + 1) -> Invertimos la lógica de calidad: 1 (menor compresión) a 100 (mayor compresión)
