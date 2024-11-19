@@ -199,7 +199,7 @@ class Compresor:
                     "ffmpeg", "-y", "-i", filepath, "-ar", str(sample_rate), "-ac", str(audio.channels), "-b:a", f"{quality}k", save_path
                 ] #Comando para convertir a AAC
                 subprocess.run(command, check=True)
-            elif file_format == 'ac3': # PBIEN
+            elif file_format == 'ac3': # BIEN
                 # Usamos ffmpeg para la conversión a AC3
                 bitrate = f"{min(max(quality, 96), 640)}k"  # Ajustar bitrate entre 96 kbps y 640 kbps
                 command = [
