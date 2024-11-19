@@ -145,7 +145,7 @@ Builder.load_string("""
             width: '40dp'
             height: '20dp'  # Ajustar la altura para que el TextInput sea más bajo
             halign: 'center'  # Centrar el texto horizontalmente
-            padding_y: [20, 20]  # Espaciado vertical para centrar el texto
+            padding: [0, (self.height - self.line_height) / 2]  # Centrar el texto verticalmente basado en la altura
             input_filter: 'int'  # Solo permitir enteros
             multiline: False  # Evitar que el texto ocupe varias líneas
             on_text_validate: root.validate_compression_level() # Validar el valor ingresado 
