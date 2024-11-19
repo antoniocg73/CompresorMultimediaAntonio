@@ -1,7 +1,7 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from kivy.clock import Clock
-from kivy.properties import StringProperty, NumericProperty
+from kivy.properties import StringProperty, NumericProperty, BooleanProperty
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from kivy.core.window import Window
@@ -102,7 +102,7 @@ Builder.load_string("""
         color: 1, 1, 1, 1
         on_press: self.background_color = 1, 0.278, 0, 1
         on_release: self.background_color = 0.8, 0.4, 0, 1
-        disabled: root.file_type == ""  # Deshabilita el botón si no se ha seleccionado tipo de archivo
+        disabled: root.file_type == "" or quality.focus # Deshabilita el botón si no se ha seleccionado tipo de archivo
 
     Label:
         id: file_path  # Identificador para mostrar la ruta del archivo seleccionado
@@ -148,7 +148,7 @@ Builder.load_string("""
             padding_y: [20, 20]  # Espaciado vertical para centrar el texto
             input_filter: 'int'  # Solo permitir enteros
             multiline: False  # Evitar que el texto ocupe varias líneas
-            on_text_validate: root.validate_compression_level() # Validar el valor ingresado
+            on_text_validate: root.validate_compression_level() # Validar el valor ingresado 
             on_focus: if not self.focus: root.validate_compression_level() # Validar al perder el foco
             
         Button: # Botón para aumentar el nivel de compresión
@@ -171,7 +171,9 @@ Builder.load_string("""
         background_color: 0.8, 0.4, 0, 1 
         color: 1, 1, 1, 1
         on_press: self.background_color = 1, 0.278, 0, 1 # Cambiar el color al presionar
-        on_release: self.background_color = 0.8, 0.4, 0, 1 # Restablecer el color al soltar
+        on_release: self.background_color = 0.8, 0.4, 0, 1 # Restablecer el color al soltar 
+        disabled: not root.is_valid_compression_level or quality.focus # Deshabilitar el botón si no es válido
+
 
     Label: # Label para mostrar el estado de la compresión
         id: status  # Identificador para mostrar el estado de la compresión
@@ -193,11 +195,15 @@ class CompressorInterface(BoxLayout):
     file_type = StringProperty("")  # Variable para el tipo de archivo seleccionado
     compression_level = NumericProperty(50)  # Nivel de compresión inicial en 50
     status = StringProperty("")  # Variable para el estado de la compresión
+    is_valid_compression_level = BooleanProperty(false)  # Controla si el botón "Comprimir" está habilitado
+    file_path_entero = StringProperty("")
+
 
 
     #Establece el tipo de archivo seleccionado, cambia el color del botón y deselecciona otros en las opciones de archivo.
     def set_file_type(self, file_type, button):
         self.reset_new_path_with_delay()
+        #self.file_type = f"Archivo seleccionado: {file_type}"  # Formato con "Archivo seleccionado"
         self.file_type = file_type
         # Desactivar la selección de otros botones
         for btn in self.ids.file_buttons.children:
@@ -229,7 +235,8 @@ class CompressorInterface(BoxLayout):
 
         if file_path: # Si se selecciona un archivo, actualizar la ruta del archivo
             self.selected_file = file_path
-            self.ids.file_path.text = f"Archivo seleccionado: {file_path}" # Actualizar la etiqueta de la ruta
+            self.file_path_entero = f"Archivo seleccionado: {file_path}" # Actualizar la etiqueta de la ruta
+            self.ids.file_path.text = self.file_path_entero
 
     def avoid_level_compression(self, message):
             # Ocultar o deshabilitar el TextInput
@@ -290,6 +297,7 @@ class CompressorInterface(BoxLayout):
         new_value = int(self.ids.quality.text)  # Obtener el valor del TextInput
         if 50 <= new_value <= 100:
             self.compression_level = new_value
+            self.ids.quality.focus = False  # Quitar el foco del TextInput
         else:
             self.reset_compression_level()
             #self.ids.quality.text = str(self.compression_level)  # Restablecer al valor válido

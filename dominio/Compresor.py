@@ -203,9 +203,9 @@ class Compresor:
                 pass
             elif file_format == 'flac': # PONER ALGUNO
                 pass
-            elif file_format == 'ogg': #PONER ALGUNO
+            elif file_format == 'ogg': #BIEN
                 audio.export(save_path, format="ogg") #Convierte a OGG
-            elif file_format == 'wma':
+            elif file_format == 'wma': #BIEN
                 # Usamos ffmpeg para la conversión a WMA ya que pydub no lo soporta
                 command = [
                     "ffmpeg", "-y", "-i", filepath, "-ar", str(sample_rate), "-ac", str(audio.channels), save_path 
