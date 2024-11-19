@@ -1,7 +1,10 @@
 from PIL import Image, ImageSequence  # Módulo `Image` de la biblioteca PIL (Pillow).
-import cv2  # OpenCV (`cv2`), una biblioteca para procesar imágenes y videos.
+#import cv2  # OpenCV (`cv2`), una biblioteca para procesar imágenes y videos.
 from moviepy.editor import VideoFileClip
 from persistencia.guardar_archivo import GuardarArchivo  # Clase para guardar archivos.
+from pydub import AudioSegment  # Importar AudioSegment de la biblioteca pydub.
+import subprocess
+
 
 class Compresor:
     """Clase `Compresor` para comprimir imágenes y videos con almacenamiento opcional."""
@@ -153,3 +156,64 @@ class Compresor:
 
         except Exception as e:
             return False, f"Error al comprimir el video: {str(e)}"
+    
+    def compress_audio(self, filepath, quality, save_path=None):
+        """
+        Comprime un archivo de audio (MP3, WAV, AAC, FLAC, OGG, WMA) según la calidad especificada.
+        
+        Parámetros:
+        - filepath: Ruta del archivo de audio a comprimir.
+        - quality: Nivel de calidad de compresión (0 - 100).
+        - save_path: Ruta donde guardar el archivo comprimido. Si es None, se sobrescribe el archivo original.
+        
+        Retorna:
+        - (True, save_path) si la operación es exitosa.
+        - (False, error_message) si ocurre un error.
+        """
+        try:
+            # Cargar el archivo de audio
+            audio = AudioSegment.from_file(filepath)
+
+            # Determinar el formato de salida dependiendo de la extensión
+            file_format = filepath.split('.')[-1].lower()
+
+            # Verifica si la ruta de guardado es proporcionada, si no se asigna una predeterminada
+            if save_path is None:
+                save_path = filepath.replace(f'.{file_format}', f'_compressed.{file_format}')
+
+            # Ajuste de la tasa de muestreo según la calidad
+            sample_rate = 44100  # Tasa de muestreo por defecto (calidad estándar)
+            
+            # La calidad determina el ajuste de la tasa de muestreo, mayor nivel de compresión = mayor tasa de muestreo
+            sample_rate = 8000 + (quality * 300)  # Reducir la tasa de muestreo para compresión
+
+            # Establecer la tasa de muestreo en el archivo de audio
+            audio = audio.set_frame_rate(sample_rate)
+
+            # Exportar el archivo en el formato adecuado
+            if file_format == 'mp3':
+                audio.export(save_path, format="mp3") #BIEN
+            elif file_format == 'aac': #BIEN
+                # Usamos ffmpeg para la conversión a AAC, ya que pydub no lo soporta bien
+                command = [
+                    "ffmpeg", "-y", "-i", filepath, "-ar", str(sample_rate), "-ac", str(audio.channels), "-b:a", f"{quality}k", save_path
+                ]
+                subprocess.run(command, check=True)
+            elif file_format == 'wav': # PONER ALGUNO
+                pass
+            elif file_format == 'flac': #
+                pass
+            elif file_format == 'ogg': #PONER ALGUNO
+                audio.export(save_path, format="ogg")
+            elif file_format == 'wma':
+                # Usamos ffmpeg para la conversión a WMA ya que pydub no lo soporta
+                command = [
+                    "ffmpeg", "-y", "-i", filepath, "-ar", str(sample_rate), "-ac", str(audio.channels), save_path
+                ]
+                subprocess.run(command, check=True)
+            else:
+                return False, f"Formato de archivo '{file_format}' no compatible."
+
+            return True, save_path
+        except Exception as e:
+            return False, f"Error al comprimir el archivo de audio: {str(e)}"
