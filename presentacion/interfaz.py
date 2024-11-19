@@ -223,7 +223,7 @@ class CompressorInterface(BoxLayout):
         elif self.file_type == "Video":
             file_path = askopenfilename(filetypes=[("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.webm;*.mpeg")])
         elif self.file_type == "Audio":
-            file_path = askopenfilename(filetypes=[("Audios", "*.mp3;*.wav;*.ogg;*.flac;*.wma;*.aac")])
+            file_path = askopenfilename(filetypes=[("Audios", "*.mp3;*.ac3;*.ogg;*.mp2;*.wma;*.aac")])
         else:
             file_path = None
         
@@ -346,7 +346,7 @@ class CompressorInterface(BoxLayout):
         elif self.file_type == "Video":
             filetypes = [("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.webm;*.mpeg")]
         elif self.file_type == "Audio":
-            filetypes = [("Audio MP3", "*.mp3;*.wav;*.ogg;*.flac;*.wma;*.aac")]
+            filetypes = [("Audio MP3", "*.mp3;*.ac3;*.ogg;*.mp2;*.wma;*.aac")]
         else:
             self.status = "Formato de archivo no compatible."
             self.ids.status.text = self.status
@@ -376,7 +376,7 @@ class CompressorInterface(BoxLayout):
             result = compressor.compress_image(filepath, (100 - quality), save_path)
         elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi','.mov', '.mkv', '.wmv', '.webm', '.mpeg')):
             result = compressor.compress_video(filepath, save_path)
-        elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.wav', '.ogg', '.flac', '.wma', '.aac')):
+        elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.ac3', '.ogg', '.mp2', '.wma', '.aac')):
             result = compressor.compress_audio(filepath, (100 - quality), save_path)
         else:
             self.status = "Formato de archivo no compatible."
