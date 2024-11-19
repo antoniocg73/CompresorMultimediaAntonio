@@ -210,8 +210,8 @@ class CompressorInterface(BoxLayout):
             btn.background_color = (0.8, 0.4, 0, 1)  # Resetear color
         # Resaltar el botón seleccionado
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
-        if self.file_type == "Video":
-            self.avoid_level_compression("No hay opción de nivel de compresión vídeos.")
+        if self.file_type == "Video" or self.file_type == "Audio":
+            self.avoid_level_compression("No hay opción de nivel de compresión de " +self.file_type + ".")
         else:
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
 
@@ -230,7 +230,7 @@ class CompressorInterface(BoxLayout):
         # Verificar si el archivo seleccionado es un archivo TIFF para evitar la opción de nivel de compresión
         if file_path.lower().endswith(".tiff"):
             self.avoid_level_compression("No hay opción de nivel de compresión para archivos TIFF.")
-        elif self.file_type != "Video": # Permitir el nivel de compresión para otros formatos sin tener en cuenta videos, ya que se ajusta en otro método
+        elif self.file_type != "Video" and self.file_type != "Audio": # Permitir el nivel de compresión para otros formatos sin tener en cuenta videos, ya que se ajusta en otro método
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
 
         if file_path: # Si se selecciona un archivo, actualizar la ruta del archivo
@@ -377,7 +377,7 @@ class CompressorInterface(BoxLayout):
         elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi','.mov', '.mkv', '.wmv', '.webm', '.mpeg')):
             result = compressor.compress_video(filepath, save_path)
         elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.ac3', '.ogg', '.mp2', '.wma', '.aac')):
-            result = compressor.compress_audio(filepath, (100 - quality), save_path)
+            result = compressor.compress_audio(filepath, 0, save_path) #Le paso 0 porque en muchos niveles la compresión es igual, así que directamente lo reduzco al máximo
         else:
             self.status = "Formato de archivo no compatible."
             self.ids.status.text = self.status
