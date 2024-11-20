@@ -9,16 +9,9 @@ from sqlalchemy import false
 from dominio.Compresor import Compressor
 
 
-# Ocultar la ventana principal de Tkinter, ya que solo se necesita el diálogo para seleccionar archivos y no toda la ventana.
-Tk().withdraw()
 
-# Establecemos el tamaño específico de la ventana
-Window.size = (850, 600)  
-Window.icon = 'imagenes/reposteria.png'
 
-# Establecemos el tamaño mínimo de la ventana
-Window.minimum_width = 850  
-Window.minimum_height = 600  
+
 
 
 
@@ -193,6 +186,17 @@ class CompressorInterface(BoxLayout):
     
     def __init__(self, **kwargs): #
         super().__init__(**kwargs)
+        self.compressor = Compressor()  # Instanciar la clase Compresor desde la capa de dominio
+        # Ocultar la ventana principal de Tkinter, ya que solo se necesita el diálogo para seleccionar archivos y no toda la ventana.
+        Tk().withdraw()
+
+        # Establecemos el tamaño específico de la ventana
+        Window.size = (850, 600)  
+
+        # Establecemos el tamaño mínimo de la ventana
+        Window.minimum_width = 850  
+        Window.minimum_height = 600  
+
 
     #En Kivy, las propiedades como StringProperty, NumericProperty, y BooleanProperty no deben asignarse dentro del __init__ directamente.
     selected_file = StringProperty("No se ha seleccionado ningún archivo") # Variable para la ruta del archivo seleccionado
@@ -372,18 +376,16 @@ class CompressorInterface(BoxLayout):
         # Agregar la extensión correcta al save_path si el usuario no la incluyó
         if not save_path.lower().endswith(file_extension):
             save_path += "."+ file_extension
-
-        compressor = Compressor()  # Instanciamos la clase Compresor desde la capa de dominio
         
         # Dependiendo del tipo de archivo seleccionado, llamamos al método correspondiente con la ruta final de guardado
         # (100 - quality + 1) -> Invertimos la lógica de calidad: 1 (menor compresión) a 100 (mayor compresión)
 
         if self.file_type == "Imagen" and filepath.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')):
-            result = compressor.compress_image(filepath, (100 - quality), save_path)
+            result = self.compressor.compress_image(filepath, (100 - quality), save_path)
         elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi','.mov', '.mkv', '.wmv', '.webm', '.mpeg')):
-            result = compressor.compress_video(filepath, save_path)
+            result = self.compressor.compress_video(filepath, save_path)
         elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.ac3', '.ogg', '.mp2', '.wma', '.aac')):
-            result = compressor.compress_audio(filepath, 0, save_path) #Le paso 0 porque en muchos niveles la compresión es igual, así que directamente lo reduzco al máximo
+            result = self.compressor.compress_audio(filepath, 0, save_path) #Le paso 0 porque en muchos niveles la compresión es igual, así que directamente lo reduzco al máximo
         else:
             self.status = "Formato de archivo no compatible."
             self.ids.status.text = self.status
