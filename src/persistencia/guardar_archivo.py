@@ -29,3 +29,4 @@ class SaveFile:
         # Normaliza las barras a `/` (opcional para sistemas Windows)
         return full_path.replace("\\", "/")
     
+    

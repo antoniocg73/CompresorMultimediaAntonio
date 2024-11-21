@@ -11,7 +11,13 @@ class Compressor:
     """Clase `Compresor` para comprimir imágenes y videos con almacenamiento opcional."""
     def __init__(self):
         self.guardarArchivo = SaveFile()
-        AudioSegment.converter =  self.resourcePath("ffmpeg/bin/ffmpeg.exe")  # Establecer el conversor de audio a ffmpeg.
+        # Usar resourcePath para encontrar ffmpeg y ffprobe
+        ffmpeg_path = self.resourcePath("ffmpeg/bin/ffmpeg.exe")
+        ffprobe_path = self.resourcePath("ffmpeg/bin/ffprobe.exe")
+
+        # Configurar AudioSegment para que use estas rutas
+        AudioSegment.converter = ffmpeg_path
+        AudioSegment.ffprobe = ffprobe_path
 
 
     def compress_image(self, filepath, quality, save_path=None):
@@ -193,43 +199,16 @@ class Compressor:
             # Establecer la tasa de muestreo en el archivo de audio
             audio = audio.set_frame_rate(sample_rate)
 
-            # Exportar el archivo en el formato adecuado
-            if file_format == 'mp3':
-                audio.export(save_path, format="mp3") #Convierte a MP3
-            elif file_format == 'aac': #BIEN
-                # Usamos ffmpeg para la conversión a AAC, ya que pydub no lo soporta bien
-                command = [
-                    "ffmpeg", "-y", "-i", filepath, "-ar", str(sample_rate), "-ac", str(audio.channels), "-b:a", f"{quality}k", save_path
-                ] #Comando para convertir a AAC
-                subprocess.run(command, check=True)
-            elif file_format == 'ac3': # BIEN
-                # Usamos ffmpeg para la conversión a AC3
-                bitrate = f"{min(max(quality, 96), 640)}k"  # Ajustar bitrate entre 96 kbps y 640 kbps
-                command = [
-                    "ffmpeg", "-y", "-i", filepath, "-ar", str(44100), "-b:a", bitrate, save_path
-                ]  # Convertir a AC3
-                subprocess.run(command, check=True)
-            elif file_format == 'mp2': # BIEN
-                # Usamos ffmpeg para la conversión a MP2, ya que no es soportado directamente por Pydub
-                bitrate = f"{min(max(quality, 32), 384)}k"  # Ajustar bitrate entre 32 y 384 kbps
-                command = [
-                    "ffmpeg", "-y", "-i", filepath, "-ar", str(44100), "-b:a", bitrate, save_path
-                ]  # Convertir a MP2
-                subprocess.run(command, check=True)
-            elif file_format == 'ogg': #BIEN
-                audio.export(save_path, format="ogg") #Convierte a OGG
-            elif file_format == 'wma': #BIEN
-                # Usamos ffmpeg para la conversión a WMA ya que pydub no lo soporta
-                command = [
-                    "ffmpeg", "-y", "-i", filepath, "-ar", str(sample_rate), "-ac", str(audio.channels), save_path 
-                ] #Comando para convertir a WMA
-                subprocess.run(command, check=True)
+            # Exportar el archivo de audio comprimido
+            if file_format in ['mp3', 'wav', 'ogg', 'mp2', 'ac3']:  # Formatos soportados por pydub
+                bitrate = f"{min(max(quality, 32), 320)}k"  # Ajustar el bitrate entre 32 kbps y 320 kbps
+                audio.export(save_path, format=file_format, bitrate=bitrate)
             else:
-                return False, f"Formato de archivo '{file_format}' no compatible."
+                return False, f"Formato de archivo '{file_format}' no compatible sin FFmpeg."
 
             return True, save_path
         except Exception as e:
             return False, f"Error al comprimir el archivo de audio: {str(e)}"
-        
+    
     def resourcePath(self, relative_path):
         return self.guardarArchivo.resourcePath(relative_path)
