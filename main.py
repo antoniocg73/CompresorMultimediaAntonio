@@ -11,12 +11,20 @@ class CompresslyApp(App): # Coge como nombre Compressly
         return CompressorInterface()
     
     def resourcePath(self, relative_path):
+        """ Devuelve la ruta absoluta del recurso, con barras hacia adelante. """
         try:
+            # Carpeta temporal creada por PyInstaller
             base_path = sys._MEIPASS
-        except Exception:
+        except AttributeError:
+            # Directorio actual en modo desarrollo
             base_path = os.path.abspath(".")
-    
-        return os.path.join(base_path, relative_path)
+
+        # Construye la ruta completa
+        full_path = os.path.join(base_path, relative_path)
+
+        # Normaliza las barras a `/` (opcional para sistemas Windows)
+        print(full_path.replace("\\", "/"))
+        return full_path.replace("\\", "/")
 
 if __name__ == "__main__":
     CompresslyApp().run()

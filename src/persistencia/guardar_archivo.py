@@ -14,11 +14,18 @@ class SaveFile:
     def obtain_ext(self, filepath):
         return os.path.splitext(filepath)[1].lower()  # Obtener la extensión.
     
-    def resourcePath(self, relative_path): # Para obtener la ruta de los recursos y que funcione con pyinstaller
+    def resourcePath(self, relative_path):
+        """ Devuelve la ruta absoluta del recurso, con barras hacia adelante. """
         try:
+            # Carpeta temporal creada por PyInstaller
             base_path = sys._MEIPASS
-        except Exception:
+        except AttributeError:
+            # Directorio actual en modo desarrollo
             base_path = os.path.abspath(".")
-    
-        return os.path.join(base_path, relative_path)
+
+        # Construye la ruta completa
+        full_path = os.path.join(base_path, relative_path)
+
+        # Normaliza las barras a `/` (opcional para sistemas Windows)
+        return full_path.replace("\\", "/")
     

@@ -5,13 +5,14 @@ from src.persistencia.guardar_archivo import SaveFile  # Clase para guardar arch
 from pydub import AudioSegment  # Importar AudioSegment de la biblioteca pydub.
 import subprocess
 
-AudioSegment.converter = "ffmpeg/bin/ffmpeg.exe"  # Establecer el conversor de audio a ffmpeg.
 
 
 class Compressor:
     """Clase `Compresor` para comprimir imágenes y videos con almacenamiento opcional."""
     def __init__(self):
         self.guardarArchivo = SaveFile()
+        AudioSegment.converter =  self.resourcePath("ffmpeg/bin/ffmpeg.exe")  # Establecer el conversor de audio a ffmpeg.
+
 
     def compress_image(self, filepath, quality, save_path=None):
         """

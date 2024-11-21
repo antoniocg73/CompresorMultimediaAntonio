@@ -1,3 +1,4 @@
 # CompresorMultimediaAntonio
 
-pyinstaller --onefile --add-data "ffmpeg/bin;ffmpeg/bin/ffmpeg.exe" --icon="imagenes/reposteria.png" main.py
+## Comando para conseguir el ejecutable
+pyinstaller --onefile --add-data "imagenes;imagenes" --add-data "ffmpeg/bin;ffmpeg/bin" --icon="imagenes/reposteria.png" main.py
