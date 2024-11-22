@@ -67,7 +67,7 @@ class Compressor:
 
                 # Determinar el nivel de compresión para PNG
                 compress_level = int((100 - (quality+1)) / 10)  # Ajustar el nivel de compresión (0 a 9)
-                save_path = save_path.replace('.bmp', '.png')  # Cambiar la extensión a PNG
+                save_path = save_path.replace('.bmp', '.png')  # Cambiar la extensión a PNG.
                 # Guardar la imagen en formato PNG
                 img.save(save_path, output_format, compress_level=compress_level)
             elif file_extension == '.tiff': # Convertir TIFF a JPEG para reducir tamaño
