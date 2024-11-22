@@ -63,7 +63,7 @@ class Compressor:
                 img.save(save_path, output_format, compress_level=compress_level)
 
             elif file_extension == '.bmp': #Lo paso a PNG para reducir tamaño
-                output_format = 'PNG'  # Usar PNG en lugar de BMP
+                output_format = 'PNG'  # Usar PNG en lugar de BMP.
 
                 # Determinar el nivel de compresión para PNG
                 compress_level = int((100 - (quality+1)) / 10)  # Ajustar el nivel de compresión (0 a 9)
