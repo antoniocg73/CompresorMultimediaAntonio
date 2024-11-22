@@ -5,7 +5,7 @@ a = Analysis(
     ['Compressly.py'],
     pathex=[],
     binaries=[('ffmpeg/bin/ffmpeg.exe', 'ffmpeg/bin/'), ('ffmpeg/bin/ffprobe.exe', 'ffmpeg/bin/')],
-    datas=[('imagenes', 'imagenes')],
+    datas=[('imagenes', 'imagenes'), ('vc_redist.x64.exe', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

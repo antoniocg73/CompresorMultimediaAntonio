@@ -21,16 +21,12 @@ class Compressor:
         # Configurar AudioSegment para que use estas rutas
         AudioSegment.converter = ffmpeg_path
         AudioSegment.ffprobe = ffprobe_path
-        pydub.utils.get_prober = lambda: AudioSegment.ffprobe  # Sobrescribir el buscador de `ffprobe`
+        pydub.utils.get_prober = lambda: AudioSegment.ffprobe  # Sobrescribir el buscador de 'ffprobe'
 
         # Ajustar el PATH del sistema (puede ser redundante pero es seguro)
         ffmpeg_path = self.resourcePath("ffmpeg/bin/")
         os.environ["PATH"] += os.pathsep + ffmpeg_path
 
-        
-        print(f"FFmpeg: {ffmpeg_path}")
-        print(f"FFprobe: {ffprobe_path}")
-        print(f"Pydub Prober: {pydub.utils.get_prober()}")
 
 
     def compress_image(self, filepath, quality, save_path=None):
@@ -63,16 +59,17 @@ class Compressor:
 
             elif file_extension == '.png':
                 output_format = 'PNG'
-                img.save(save_path, output_format, compress_level=int((100 - (quality+1)) / 10))
+                compress_level = int((100 - (quality+1)) / 10)
+                img.save(save_path, output_format, compress_level=compress_level)
 
             elif file_extension == '.bmp': #Lo paso a PNG para reducir tamaño
                 output_format = 'PNG'  # Usar PNG en lugar de BMP
 
                 # Determinar el nivel de compresión para PNG
-                compress_level = int((100 - quality) / 10)  # Ajustar el nivel de compresión (0 a 9)
-
+                compress_level = int((100 - (quality+1)) / 10)  # Ajustar el nivel de compresión (0 a 9)
+                save_path = save_path.replace('.bmp', '.png')  # Cambiar la extensión a PNG
                 # Guardar la imagen en formato PNG
-                img.save(save_path.replace('.bmp', '.png'), 'PNG', compress_level=compress_level)
+                img.save(save_path, output_format, compress_level=compress_level)
             elif file_extension == '.tiff': # Convertir TIFF a JPEG para reducir tamaño
                 output_format = 'TIFF'
                 compression_mode = 'tiff_lzw'  # Método de compresión sin pérdida

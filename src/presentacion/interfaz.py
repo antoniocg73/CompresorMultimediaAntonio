@@ -362,6 +362,12 @@ class CompressorInterface(BoxLayout):
             self.ids.status.text = self.status
             return
 
+        #Comprobar si es .bmp
+        if file_extension == "bmp":
+            self.status = "El formato BMP se va a comprimir como png."
+            self.ids.status.text = self.status
+            file_extension = "png"
+
         # Abrir diálogo de "Guardar como" con la extensión de archivo específica según el tipo seleccionado
         save_path = asksaveasfilename(
             initialfile=f"{filepath.split('/')[-1].split('.')[0]}_compressed.{file_extension}",
