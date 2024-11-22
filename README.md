@@ -18,6 +18,7 @@ pip freeze > requirements.txt
 - pydub==0.25.1
 
 ## Comando para conseguir el ejecutable
-pyinstaller --onefile --add-binary "ffmpeg/bin/ffmpeg.exe;ffmpeg/bin/" --add-binary "ffmpeg/bin/ffprobe.exe;ffmpeg/bin/" --add-data "imagenes:imagenes" --add-data "vc_redist.x64.exe;." Compressly.py
+pyinstaller --onefile --add-binary "ffmpeg/bin/ffmpeg.exe;ffmpeg/bin/" --add-binary "ffmpeg/bin/ffprobe.exe;ffmpeg/bin/" --add-data "imagenes:imagenes" --add-data "vc_redist.x64.exe;." --icon "imagenes/reposteria.ico" Compressly.py
+
 
 
