@@ -3,6 +3,8 @@ from PIL import Image, ImageSequence  # Módulo `Image` de la biblioteca PIL (Pi
 from moviepy.editor import VideoFileClip
 from src.persistencia.guardar_archivo import SaveFile  # Clase para guardar archivos.
 from pydub import AudioSegment  # Importar AudioSegment de la biblioteca pydub.
+import pydub.utils
+import os
 import subprocess
 
 
@@ -14,10 +16,21 @@ class Compressor:
         # Usar resourcePath para encontrar ffmpeg y ffprobe
         ffmpeg_path = self.resourcePath("ffmpeg/bin/ffmpeg.exe")
         ffprobe_path = self.resourcePath("ffmpeg/bin/ffprobe.exe")
+        
 
         # Configurar AudioSegment para que use estas rutas
         AudioSegment.converter = ffmpeg_path
         AudioSegment.ffprobe = ffprobe_path
+        pydub.utils.get_prober = lambda: AudioSegment.ffprobe  # Sobrescribir el buscador de `ffprobe`
+
+        # Ajustar el PATH del sistema (puede ser redundante pero es seguro)
+        ffmpeg_path = self.resourcePath("ffmpeg/bin/")
+        os.environ["PATH"] += os.pathsep + ffmpeg_path
+
+        
+        print(f"FFmpeg: {ffmpeg_path}")
+        print(f"FFprobe: {ffprobe_path}")
+        print(f"Pydub Prober: {pydub.utils.get_prober()}")
 
 
     def compress_image(self, filepath, quality, save_path=None):

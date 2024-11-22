@@ -8,3 +8,5 @@ build/
 main.spec
 # Ignorar el archivo requirements.txt
 requirements.txt
+# Ignorar el VC_redist.x64.exe
+VC_redist.x64.exe
