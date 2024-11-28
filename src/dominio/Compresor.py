@@ -1,10 +1,8 @@
-import zlib
 from PIL import Image, ImageSequence  # Módulo `Image` de la biblioteca PIL (Pillow).
 from moviepy.editor import VideoFileClip
 from src.persistencia.guardar_archivo import SaveFile  # Clase para guardar archivos.
 from pydub import AudioSegment  # Importar AudioSegment de la biblioteca pydub.
 import pydub.utils
-import zlib 
 import os
 
 class Compressor:
