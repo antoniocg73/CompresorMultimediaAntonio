@@ -1,13 +1,11 @@
+import zlib
 from PIL import Image, ImageSequence  # Módulo `Image` de la biblioteca PIL (Pillow).
-#import cv2  # OpenCV (`cv2`), una biblioteca para procesar imágenes y videos.
 from moviepy.editor import VideoFileClip
 from src.persistencia.guardar_archivo import SaveFile  # Clase para guardar archivos.
 from pydub import AudioSegment  # Importar AudioSegment de la biblioteca pydub.
 import pydub.utils
+import zlib 
 import os
-import subprocess
-
-
 
 class Compressor:
     """Clase `Compresor` para comprimir imágenes y videos con almacenamiento opcional."""
@@ -28,7 +26,34 @@ class Compressor:
         os.environ["PATH"] += os.pathsep + ffmpeg_path
 
 
+    def compress_text(self, filepath, save_path):
+        """
+        Comprime el texto manteniendo el contenido legible pero reduciendo tamaño
+        al eliminar espacios redundantes y líneas en blanco.
 
+        Args:
+            filepath (str): Ruta del archivo original.
+            save_path (str): Ruta donde guardar el archivo comprimido.
+
+        Returns:
+            tuple: (bool, str) Indica si la compresión fue exitosa y el mensaje o ruta del archivo.
+        """
+        try:
+            # Leer el contenido original del archivo
+            with open(filepath, 'r', encoding='utf-8') as file:
+                content = file.read()
+
+            # Eliminar espacios redundantes y líneas vacías
+            compressed_content = " ".join(line.strip() for line in content.splitlines() if line.strip())
+
+            # Guardar el texto comprimido
+            with open(save_path, 'w', encoding='utf-8') as file:
+                file.write(compressed_content)
+
+            return True, save_path
+        except Exception as e:
+            return False, f"Error al comprimir el archivo: {str(e)}"
+        
     def compress_image(self, filepath, quality, save_path=None):
         """
         Comprime una imagen y la guarda en la ubicación especificada.

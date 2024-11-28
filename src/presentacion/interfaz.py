@@ -66,6 +66,13 @@ Builder.load_string("""
         spacing: 10 
         id: file_buttons  
 
+        Button: # Botón para seleccionar opción de texto	
+            text: "Texto"
+            on_release: root.set_file_type("Texto", self)
+            background_normal: ''
+            background_color: (1, 0.6, 0.2, 1) if root.file_type == "Texto" else (0.8, 0.4, 0, 1)
+            color: 1, 1, 1, 1            
+
         Button: # Botón para seleccionar opción de imagen	
             text: "Imagen"
             on_release: root.set_file_type("Imagen", self)
@@ -218,7 +225,7 @@ class CompressorInterface(BoxLayout):
             btn.background_color = (0.8, 0.4, 0, 1)  # Resetear color
         # Resaltar el botón seleccionado
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
-        if self.file_type == "Video" or self.file_type == "Audio":
+        if self.file_type == "Video" or self.file_type == "Audio" or self.file_type == "Texto":
             self.avoid_level_compression("No hay opción de nivel de compresión de " +self.file_type + ".")
         else:
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
@@ -226,7 +233,9 @@ class CompressorInterface(BoxLayout):
     #Abre el diálogo de archivos para seleccionar un archivo según el tipo seleccionado.
     def open_file_dialog(self): 
         self.reset_new_path_with_delay()
-        if self.file_type == "Imagen":
+        if self.file_type == "Texto":
+            file_path = askopenfilename(filetypes=[("Archivos de texto", "*.txt")])
+        elif self.file_type == "Imagen":
             file_path = askopenfilename(filetypes=[("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")]) 
         elif self.file_type == "Video":
             file_path = askopenfilename(filetypes=[("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.webm;*.mpeg")])
@@ -238,7 +247,7 @@ class CompressorInterface(BoxLayout):
         # Verificar si el archivo seleccionado es un archivo TIFF para evitar la opción de nivel de compresión
         if file_path.lower().endswith(".tiff"):
             self.avoid_level_compression("No hay opción de nivel de compresión para archivos TIFF.")
-        elif self.file_type != "Video" and self.file_type != "Audio": # Permitir el nivel de compresión para otros formatos sin tener en cuenta videos, ya que se ajusta en otro método
+        elif self.file_type != "Video" and self.file_type != "Audio" and self.file_type != "Texto": # Permitir el nivel de compresión para otros formatos sin tener en cuenta videos, audios y texto
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
 
         if file_path: # Si se selecciona un archivo, actualizar la ruta del archivo
@@ -351,7 +360,9 @@ class CompressorInterface(BoxLayout):
 
 
         # Configurar el tipo de archivo y extensión de guardado en función del tipo de archivo seleccionado
-        if self.file_type == "Imagen":
+        if self.file_type == "Texto":
+            filetypes = [("Archivos de texto", "*.txt")]
+        elif self.file_type == "Imagen":
             filetypes = [("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")]
         elif self.file_type == "Video":
             filetypes = [("Videos", "*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.webm;*.mpeg")]
@@ -385,13 +396,14 @@ class CompressorInterface(BoxLayout):
         
         # Dependiendo del tipo de archivo seleccionado, llamamos al método correspondiente con la ruta final de guardado
         # (100 - quality + 1) -> Invertimos la lógica de calidad: 1 (menor compresión) a 100 (mayor compresión)
-
-        if self.file_type == "Imagen" and filepath.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')):
+        if self.file_type == "Texto" and filepath.lower().endswith('.txt'):
+            result = self.compressor.compress_text(filepath, save_path)
+        elif self.file_type == "Imagen" and filepath.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')):
             result = self.compressor.compress_image(filepath, (100 - quality), save_path)
         elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi','.mov', '.mkv', '.wmv', '.webm', '.mpeg')):
             result = self.compressor.compress_video(filepath, save_path)
         elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.ac3', '.ogg', '.mp2', '.wav')):
-            result = self.compressor.compress_audio(filepath, 0, save_path) #Le paso 0 porque en muchos niveles la compresión es igual, así que directamente lo reduzco al máximo
+            result = self.compressor.compress_audio(filepath, save_path) #Le paso 0 porque en muchos niveles la compresión es igual, así que directamente lo reduzco al máximo
         else:
             self.status = "Formato de archivo no compatible."
             self.ids.status.text = self.status
