@@ -1,9 +1,14 @@
+import bz2
+import gzip
+import lzma
 from PIL import Image, ImageSequence  # Módulo `Image` de la biblioteca PIL (Pillow).
 from moviepy.editor import VideoFileClip
 from src.persistencia.guardar_archivo import SaveFile  # Clase para guardar archivos.
 from pydub import AudioSegment  # Importar AudioSegment de la biblioteca pydub.
 import pydub.utils
+import zlib  # Módulo para compresión DEFLATE (zlib).
 import os
+
 
 class Compressor:
     """Clase `Compresor` para comprimir imágenes y videos con almacenamiento opcional."""
@@ -24,31 +29,46 @@ class Compressor:
         os.environ["PATH"] += os.pathsep + ffmpeg_path
 
 
-    def compress_text(self, filepath, save_path):
+    def compress_text(self, filepath, save_path, algorithm):
         """
-        Comprime el texto manteniendo el contenido legible pero reduciendo tamaño
-        al eliminar espacios redundantes y líneas en blanco.
-
+        Comprime un archivo de texto utilizando el algoritmo de compresión especificado.
+        
         Args:
             filepath (str): Ruta del archivo original.
             save_path (str): Ruta donde guardar el archivo comprimido.
-
+            algorithm (str): El algoritmo de compresión a utilizar ("deflate", "bzip2", "gzip", "lzma2", "ppm").
+        
         Returns:
             tuple: (bool, str) Indica si la compresión fue exitosa y el mensaje o ruta del archivo.
         """
         try:
             # Leer el contenido original del archivo
-            with open(filepath, 'r', encoding='utf-8') as file:
+            with open(filepath, 'rb') as file:  # Leemos el archivo en modo binario
                 content = file.read()
 
-            # Eliminar espacios redundantes y líneas vacías
-            compressed_content = " ".join(line.strip() for line in content.splitlines() if line.strip())
+            # Dependiendo del algoritmo elegido, aplicar la compresión correspondiente
+            if algorithm == "deflate":
+                # Usamos zlib para Deflate
+                compressed_content = zlib.compress(content)
+            elif algorithm == "bzip2":
+                # Usamos bz2 para Bzip2
+                compressed_content = bz2.compress(content)
+            elif algorithm == "gzip":
+                # Usamos gzip para Gzip
+                compressed_content = gzip.compress(content)
+            elif algorithm == "lzma2":
+                # Usamos lzma para LZMA2
+                compressed_content = lzma.compress(content)
+            else:
+                raise ValueError("Algoritmo de compresión no soportado.")
 
-            # Guardar el texto comprimido
-            with open(save_path, 'w', encoding='utf-8') as file:
-                file.write(compressed_content)
+            # Guardar el archivo comprimido
+            with open(save_path, 'wb') as compressed_file:
+                compressed_file.write(compressed_content)
 
+            self.guardarArchivo.save_file(save_path)
             return True, save_path
+
         except Exception as e:
             return False, f"Error al comprimir el archivo: {str(e)}"
         

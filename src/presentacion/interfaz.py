@@ -119,8 +119,12 @@ Builder.load_string("""
         height: '30dp'  # Ajustar el espacio entre el Label y el BoxLayout
 
     BoxLayout: # BoxLayout para el nivel de compresión
+        id: compression_buttons
         orientation: 'horizontal'
+        height: 50
+        opacity: 1  # Mostrar los botones de compresión
         spacing: 10
+        #size_hint_y: None  # Desactivar el ajuste automático de altura
 
         Label: 
             id: compression_label
@@ -130,7 +134,7 @@ Builder.load_string("""
         Button: # Botón para disminuir el nivel de compresión
             id: decrease_button
             size_hint_x: 0.2
-            width: '40dp'
+            width: '40dp'  # Ancho del botón
             background_normal: root.resourcePath('imagenes/LeftArrow.png') 
             background_color: 0.8, 0.4, 0, 1
             color: 1, 1, 1, 1 
@@ -159,6 +163,46 @@ Builder.load_string("""
             background_color: 0.8, 0.4, 0, 1
             color: 1, 1, 1, 1
             on_press: root.increase_compression()
+    
+    BoxLayout: # BoxLayout para los formatos de texto
+        id: algorithm_buttons
+        orientation: 'horizontal'
+        opacity: 0  # Ocultar los botones de algoritmo
+        height: 0  # Ocultar los botones de algoritmo
+        size_hint_y: None  # Desactivar el ajuste automático de altura
+        spacing: 10
+
+        Button: # Botón para seleccionar opción de deflate	
+            id: deflate_button
+            text: "deflate"
+            on_release: root.set_algorithm_type("deflate", self)
+            background_normal: ''
+            background_color: (1, 0.6, 0.2, 1) if root.algorithm_type == "deflate" else (0.8, 0.4, 0, 1)
+            color: 1, 1, 1, 1
+
+        Button:  # Botón para seleccionar opción de bzip2
+            id: bzip2_button
+            text: "bzip2"
+            on_release: root.set_algorithm_type("bzip2", self)
+            background_normal: ''
+            background_color: (1, 0.6, 0.2, 1) if root.algorithm_type == "bzip2" else (0.8, 0.4, 0, 1)
+            color: 1, 1, 1, 1
+
+        Button: # Botón para seleccionar opción de gzip
+            id: gzip_button
+            text: "gzip"
+            on_release: root.set_algorithm_type("gzip", self)
+            background_normal: ''
+            background_color: (1, 0.6, 0.2, 1) if root.algorithm_type == "gzip" else (0.8, 0.4, 0, 1)
+            color: 1, 1, 1, 1
+
+        Button: # Botón para seleccionar opción de lzma2
+            id: lzma2_button
+            text: "lzma2"
+            on_release: root.set_algorithm_type("lzma2", self)
+            background_normal: ''
+            background_color: (1, 0.6, 0.2, 1) if root.algorithm_type == "lzma2" else (0.8, 0.4, 0, 1)
+            color: 1, 1, 1, 1           
 
     Widget: # Espacio en blanco para separar los elementos
         size_hint_y: None  # Desactivar el ajuste automático de altura
@@ -208,6 +252,7 @@ class CompressorInterface(BoxLayout):
     #En Kivy, las propiedades como StringProperty, NumericProperty, y BooleanProperty no deben asignarse dentro del __init__ directamente.
     selected_file = StringProperty("No se ha seleccionado ningún archivo") # Variable para la ruta del archivo seleccionado
     file_type = StringProperty("")  # Variable para el tipo de archivo seleccionado
+    algorithm_type = StringProperty("")  # Variable para el tipo de algoritmo seleccionado
     compression_level = NumericProperty(50)  # Nivel de compresión inicial en 50
     status = StringProperty("")  # Variable para el estado de la compresión
     is_valid_compression_level = BooleanProperty(false)  # Controla si el botón "Comprimir" está habilitado
@@ -225,10 +270,40 @@ class CompressorInterface(BoxLayout):
             btn.background_color = (0.8, 0.4, 0, 1)  # Resetear color
         # Resaltar el botón seleccionado
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
-        if self.file_type == "Video" or self.file_type == "Audio" or self.file_type == "Texto":
-            self.avoid_level_compression("No hay opción de nivel de compresión de " +self.file_type + ".")
-        else:
+        if self.file_type == "Video" or self.file_type == "Audio":
+            self.ids.compression_buttons.height = 50  # Mostrar compresión
+            self.ids.compression_buttons.opacity = 1
+            self.ids.compression_buttons.size_hint_y = 1
+            self.ids.algorithm_buttons.height = 0  # Ocultar algoritmos
+            self.ids.algorithm_buttons.opacity = 0
+            self.ids.algorithm_buttons.size_hint_y = None
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
+            self.avoid_level_compression("No hay opción de nivel de compresión de " +self.file_type + ".")
+        elif self.file_type == "Texto":
+            self.ids.compression_buttons.height = 0  # Ocultar compresión
+            self.ids.compression_buttons.opacity = 0
+            self.ids.compression_buttons.size_hint_y = 0
+            self.ids.algorithm_buttons.height = 50  # Mostrar algoritmos
+            self.ids.algorithm_buttons.opacity = 1
+            self.ids.algorithm_buttons.size_hint_y = 1
+            self.avoid_level_compression("No hay opción de nivel de compresión para archivos de texto.")
+        else:
+            self.ids.compression_buttons.height = 50  # Mostrar compresión
+            self.ids.compression_buttons.opacity = 1
+            self.ids.compression_buttons.size_hint_y = 1
+            self.ids.algorithm_buttons.height = 0  # Ocultar algoritmos
+            self.ids.algorithm_buttons.opacity = 0
+            self.ids.algorithm_buttons.size_hint_y = None
+            self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
+
+    def set_algorithm_type(self, algorithm_type, button):
+        self.reset_new_path_with_delay()
+        self.algorithm_type = algorithm_type
+        # Desactivar la selección de otros botones
+        for btn in self.ids.algorithm_buttons.children:
+            btn.background_color = (0.8, 0.4, 0, 1)  # Resetear color
+        # Resaltar el botón seleccionado
+        button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
 
     #Abre el diálogo de archivos para seleccionar un archivo según el tipo seleccionado.
     def open_file_dialog(self): 
@@ -282,10 +357,10 @@ class CompressorInterface(BoxLayout):
             # Restaurar los botones
             self.ids.decrease_button.opacity = 1  # Hacer visibles los botones
             self.ids.decrease_button.size_hint_x = 0.2  # Restaurar tamaño horizontal
-            self.ids.decrease_button.width = '40dp'  # Restaurar ancho
+            #self.ids.decrease_button.width = '40dp'  # Restaurar ancho
             self.ids.increase_button.opacity = 1
             self.ids.increase_button.size_hint_x = 0.2
-            self.ids.increase_button.width = '40dp'
+            #self.ids.increase_button.width = '40dp'
             
             # Limpiar cualquier mensaje previo
             self.ids.compression_label.text = message
@@ -356,12 +431,9 @@ class CompressorInterface(BoxLayout):
             self.ids.status.text = self.status
             return
 
-        file_extension = filepath.split('.')[-1].lower()  # Obtiene la extensión en minúsculas
-
-
         # Configurar el tipo de archivo y extensión de guardado en función del tipo de archivo seleccionado
         if self.file_type == "Texto":
-            filetypes = [("Archivos de texto", "*.txt")]
+            filetypes = [("Archivos de texto", "*.zip;*.bz2;*.gz;*.xz")]
         elif self.file_type == "Imagen":
             filetypes = [("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")]
         elif self.file_type == "Video":
@@ -372,6 +444,19 @@ class CompressorInterface(BoxLayout):
             self.status = "Formato de archivo no compatible."
             self.ids.status.text = self.status
             return
+
+        # Obtener la extensión del archivo que se va a comprimir de texto
+        if self.file_type == "Texto":
+            if self.algorithm_type == "deflate":
+                file_extension = "zip"
+            elif self.algorithm_type == "bzip2":
+                file_extension = "bz2"
+            elif self.algorithm_type == "gzip":
+                file_extension = "gz"
+            elif self.algorithm_type == "lzma2":
+                file_extension = "xz"
+        else:
+            file_extension = filepath.split('.')[-1].lower()  # Obtiene la extensión en minúsculas
 
         #Comprobar si es .bmp
         if file_extension == "bmp":
@@ -396,8 +481,8 @@ class CompressorInterface(BoxLayout):
         
         # Dependiendo del tipo de archivo seleccionado, llamamos al método correspondiente con la ruta final de guardado
         # (100 - quality + 1) -> Invertimos la lógica de calidad: 1 (menor compresión) a 100 (mayor compresión)
-        if self.file_type == "Texto" and filepath.lower().endswith('.txt'):
-            result = self.compressor.compress_text(filepath, save_path)
+        if self.file_type == "Texto" and filepath.lower().endswith(('.zip', '.bz2', '.gz', '.xz')):
+            result = self.compressor.compress_text(filepath, save_path, self.algorithm_type)
         elif self.file_type == "Imagen" and filepath.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')):
             result = self.compressor.compress_image(filepath, (100 - quality), save_path)
         elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi','.mov', '.mkv', '.wmv', '.webm', '.mpeg')):
