@@ -271,29 +271,14 @@ class CompressorInterface(BoxLayout):
         # Resaltar el botón seleccionado
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
         if self.file_type == "Video" or self.file_type == "Audio":
-            self.ids.compression_buttons.height = 50  # Mostrar compresión
-            self.ids.compression_buttons.opacity = 1
-            self.ids.compression_buttons.size_hint_y = 1
-            self.ids.algorithm_buttons.height = 0  # Ocultar algoritmos
-            self.ids.algorithm_buttons.opacity = 0
-            self.ids.algorithm_buttons.size_hint_y = None
+            self.enter_compression_layout()
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
             self.avoid_level_compression("No hay opción de nivel de compresión de " +self.file_type + ".")
         elif self.file_type == "Texto":
-            self.ids.compression_buttons.height = 0  # Ocultar compresión
-            self.ids.compression_buttons.opacity = 0
-            self.ids.compression_buttons.size_hint_y = 0
-            self.ids.algorithm_buttons.height = 50  # Mostrar algoritmos
-            self.ids.algorithm_buttons.opacity = 1
-            self.ids.algorithm_buttons.size_hint_y = 1
+            self.enter_algorithm_layout()
             self.avoid_level_compression("No hay opción de nivel de compresión para archivos de texto.")
         else:
-            self.ids.compression_buttons.height = 50  # Mostrar compresión
-            self.ids.compression_buttons.opacity = 1
-            self.ids.compression_buttons.size_hint_y = 1
-            self.ids.algorithm_buttons.height = 0  # Ocultar algoritmos
-            self.ids.algorithm_buttons.opacity = 0
-            self.ids.algorithm_buttons.size_hint_y = None
+            self.enter_compression_layout()
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
 
     def set_algorithm_type(self, algorithm_type, button):
@@ -330,10 +315,27 @@ class CompressorInterface(BoxLayout):
             self.file_path_entero = f"Archivo seleccionado: {file_path}" # Actualizar la etiqueta de la ruta
             self.ids.file_path.text = self.file_path_entero
 
+    def enter_compression_layout(self):
+        self.ids.compression_buttons.height = 50  # Mostrar compresión
+        self.ids.compression_buttons.opacity = 1
+        self.ids.compression_buttons.size_hint_y = 1
+        self.ids.algorithm_buttons.height = 0  # Ocultar algoritmos
+        self.ids.algorithm_buttons.opacity = 0
+        self.ids.algorithm_buttons.size_hint_y = None
+
+    def enter_algorithm_layout(self):
+        self.ids.compression_buttons.height = 0  # Ocultar compresión
+        self.ids.compression_buttons.opacity = 0
+        self.ids.compression_buttons.size_hint_y = 0
+        self.ids.algorithm_buttons.height = 50  # Mostrar algoritmos
+        self.ids.algorithm_buttons.opacity = 1
+        self.ids.algorithm_buttons.size_hint_y = 1
+
     def avoid_level_compression(self, message):
             # Ocultar o deshabilitar el TextInput
             self.ids.quality.opacity = 0  # Ocultar el TextInput
             self.ids.quality.height = 0
+
             # Ocultar los botones
             self.ids.decrease_button.opacity = 0  # Hacer invisibles los botones
             self.ids.decrease_button.size_hint_x = None  # Quitar el espacio horizontal
@@ -341,7 +343,6 @@ class CompressorInterface(BoxLayout):
             self.ids.increase_button.opacity = 0
             self.ids.increase_button.size_hint_x = None
             self.ids.increase_button.width = 0
-
 
             # Mostrar un mensaje opcional
             self.ids.compression_label.text = message
@@ -488,7 +489,7 @@ class CompressorInterface(BoxLayout):
         elif self.file_type == "Video" and filepath.lower().endswith(('.mp4', '.avi','.mov', '.mkv', '.wmv', '.webm', '.mpeg')):
             result = self.compressor.compress_video(filepath, save_path)
         elif self.file_type == "Audio" and filepath.lower().endswith(('.mp3', '.ac3', '.ogg', '.mp2', '.wav')):
-            result = self.compressor.compress_audio(filepath, save_path) #Le paso 0 porque en muchos niveles la compresión es igual, así que directamente lo reduzco al máximo
+            result = self.compressor.compress_audio(filepath, 0, save_path) #Le paso 0 porque en muchos niveles la compresión es igual, así que directamente lo reduzco al máximo
         else:
             self.status = "Formato de archivo no compatible."
             self.ids.status.text = self.status
