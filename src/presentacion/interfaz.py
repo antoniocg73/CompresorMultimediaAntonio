@@ -438,7 +438,7 @@ class CompressorInterface(BoxLayout):
 
         # Configurar el tipo de archivo y extensión de guardado en función del tipo de archivo seleccionado
         if self.file_type == "Texto":
-            filetypes = [("Archivos de texto", "*.zip")]
+            filetypes = [("Archivos de texto", "*.zip;*.bz2;*.xz")]
         elif self.file_type == "Imagen":
             filetypes = [("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")]
         elif self.file_type == "Video":
