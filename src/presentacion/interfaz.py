@@ -102,7 +102,7 @@ Builder.load_string("""
         color: 1, 1, 1, 1
         on_press: self.background_color = 1, 0.278, 0, 1
         on_release: self.background_color = 0.8, 0.4, 0, 1
-        disabled: root.file_type == "" or quality.focus # Deshabilita el botón si no se ha seleccionado tipo de archivo
+        disabled: root.file_type == "" or root.algorithm_type == "" or quality.focus # Deshabilita el botón si no se ha seleccionado tipo de archivo
 
     Label:
         id: file_path  # Identificador para mostrar la ruta del archivo seleccionado
@@ -188,14 +188,6 @@ Builder.load_string("""
             background_color: (1, 0.6, 0.2, 1) if root.algorithm_type == "bzip2" else (0.8, 0.4, 0, 1)
             color: 1, 1, 1, 1
 
-        Button: # Botón para seleccionar opción de gzip
-            id: gzip_button
-            text: "gzip"
-            on_release: root.set_algorithm_type("gzip", self)
-            background_normal: ''
-            background_color: (1, 0.6, 0.2, 1) if root.algorithm_type == "gzip" else (0.8, 0.4, 0, 1)
-            color: 1, 1, 1, 1
-
         Button: # Botón para seleccionar opción de lzma2
             id: lzma2_button
             text: "lzma2"
@@ -272,7 +264,6 @@ class CompressorInterface(BoxLayout):
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
         if self.file_type == "Video" or self.file_type == "Audio":
             self.enter_compression_layout()
-            self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
             self.avoid_level_compression("No hay opción de nivel de compresión de " +self.file_type + ".")
         elif self.file_type == "Texto":
             self.enter_algorithm_layout()
@@ -407,9 +398,9 @@ class CompressorInterface(BoxLayout):
     #Programar el restablecimiento del texto con un retraso de 3 segundos.
         Clock.schedule_once(lambda dt: self.reset_file_path(), 3)
 
-    #Restablece la ruta del archivo seleccionado después de un retraso de 3 segundos.
+    #Restablece la ruta del archivo seleccionado después de un retraso de 2 segundos.
     def reset_new_path_with_delay(self):
-    #Programar el restablecimiento del texto con un retraso de 3 segundos.
+    #Programar el restablecimiento del texto con un retraso de 2 segundos.
         Clock.schedule_once(lambda dt: self.reset_new_path(), 2)
 
     #Restablece la ruta del archivo seleccionado.
@@ -434,7 +425,7 @@ class CompressorInterface(BoxLayout):
 
         # Configurar el tipo de archivo y extensión de guardado en función del tipo de archivo seleccionado
         if self.file_type == "Texto":
-            filetypes = [("Archivos de texto", "*.zip;*.bz2;*.gz;*.xz")]
+            filetypes = [("Archivos de texto", "*.zip")]
         elif self.file_type == "Imagen":
             filetypes = [("Imágenes","*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tiff")]
         elif self.file_type == "Video":
@@ -448,14 +439,9 @@ class CompressorInterface(BoxLayout):
 
         # Obtener la extensión del archivo que se va a comprimir de texto
         if self.file_type == "Texto":
-            if self.algorithm_type == "deflate":
-                file_extension = "zip"
-            elif self.algorithm_type == "bzip2":
-                file_extension = "bz2"
-            elif self.algorithm_type == "gzip":
-                file_extension = "gz"
-            elif self.algorithm_type == "lzma2":
-                file_extension = "xz"
+            self.status = "El formato de texto se va a comprimir como zip."
+            self.ids.status.text = self.status
+            file_extension = "zip"
         else:
             file_extension = filepath.split('.')[-1].lower()  # Obtiene la extensión en minúsculas
 
@@ -482,7 +468,7 @@ class CompressorInterface(BoxLayout):
         
         # Dependiendo del tipo de archivo seleccionado, llamamos al método correspondiente con la ruta final de guardado
         # (100 - quality + 1) -> Invertimos la lógica de calidad: 1 (menor compresión) a 100 (mayor compresión)
-        if self.file_type == "Texto" and filepath.lower().endswith(('.zip', '.bz2', '.gz', '.xz')):
+        if self.file_type == "Texto" and filepath.lower().endswith(('.txt')):
             result = self.compressor.compress_text(filepath, save_path, self.algorithm_type)
         elif self.file_type == "Imagen" and filepath.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')):
             result = self.compressor.compress_image(filepath, (100 - quality), save_path)
@@ -495,15 +481,18 @@ class CompressorInterface(BoxLayout):
             self.ids.status.text = self.status
             return
 
+   
         # Mostrar el mensaje de éxito si se completó la compresión
         if result[0]:
             self.status = f"Archivo comprimido guardado en: {result[1]}"
             self.ids.status.text = self.status
+
         else:
             self.status = result[1]  # Mostrar el mensaje de error
             self.ids.status.text = self.status  # Actualizar el texto del Label de estado
         self.reset_file_path_with_delay()
         self.reset_compression_level()
+        
 
     def resourcePath(self, relative_path):
         if not hasattr(self, 'compressor'):
