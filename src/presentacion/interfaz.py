@@ -67,6 +67,7 @@ Builder.load_string("""
         id: file_buttons  
 
         Button: # Botón para seleccionar opción de texto	
+            id: text_button
             text: "Texto"
             on_release: root.set_file_type("Texto", self)
             background_normal: ''
@@ -235,10 +236,14 @@ class CompressorInterface(BoxLayout):
 
         # Establecemos el tamaño específico de la ventana
         Window.size = (850, 600)  
-
         # Establecemos el tamaño mínimo de la ventana
         Window.minimum_width = 850  
         Window.minimum_height = 600  
+
+        #Inicio con texto marcado
+        self.file_type = "Texto"
+        self.set_file_type("Texto", self.ids.text_button) # Iniciar con el botón de texto seleccionado
+
 
 
     #En Kivy, las propiedades como StringProperty, NumericProperty, y BooleanProperty no deben asignarse dentro del __init__ directamente.
