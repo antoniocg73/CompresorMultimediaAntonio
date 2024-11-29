@@ -102,7 +102,7 @@ Builder.load_string("""
         color: 1, 1, 1, 1
         on_press: self.background_color = 1, 0.278, 0, 1
         on_release: self.background_color = 0.8, 0.4, 0, 1
-        disabled: root.file_type == "" or root.algorithm_type == "" or quality.focus # Deshabilita el botón si no se ha seleccionado tipo de archivo
+        disabled: root.file_type == "" or quality.focus or (root.file_type == "Texto" and root.algorithm_type == "") # Deshabilita el botón si no se ha seleccionado tipo de archivo
 
     Label:
         id: file_path  # Identificador para mostrar la ruta del archivo seleccionado
