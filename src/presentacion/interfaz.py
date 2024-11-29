@@ -264,12 +264,14 @@ class CompressorInterface(BoxLayout):
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
         if self.file_type == "Video" or self.file_type == "Audio":
             self.enter_compression_layout()
+            self.clean_algorithm_buttons()
             self.avoid_level_compression("No hay opción de nivel de compresión de " +self.file_type + ".")
         elif self.file_type == "Texto":
             self.enter_algorithm_layout()
             self.avoid_level_compression("No hay opción de nivel de compresión para archivos de texto.")
         else:
             self.enter_compression_layout()
+            self.clean_algorithm_buttons()
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
 
     def set_algorithm_type(self, algorithm_type, button):
@@ -280,6 +282,17 @@ class CompressorInterface(BoxLayout):
             btn.background_color = (0.8, 0.4, 0, 1)  # Resetear color
         # Resaltar el botón seleccionado
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
+
+    def clean_algorithm_buttons(self):
+        """
+        Limpiar la selección del algoritmo y desmarcar los botones.
+        """
+        self.algorithm_type = ""  # Reiniciar el algoritmo seleccionado
+        
+        # Desmarcar los botones
+        self.ids.deflate_button.background_color = (0.8, 0.4, 0, 1)
+        self.ids.bzip2_button.background_color = (0.8, 0.4, 0, 1)
+        self.ids.lzma2_button.background_color = (0.8, 0.4, 0, 1)
 
     #Abre el diálogo de archivos para seleccionar un archivo según el tipo seleccionado.
     def open_file_dialog(self): 
@@ -437,14 +450,24 @@ class CompressorInterface(BoxLayout):
             self.ids.status.text = self.status
             return
 
-        # Obtener la extensión del archivo que se va a comprimir de texto
+       # Obtener la extensión del archivo que se va a comprimir de texto
         if self.file_type == "Texto":
-            self.status = "El formato de texto se va a comprimir como zip."
+            self.status = f"El formato de texto se va a comprimir utilizando el algoritmo {self.algorithm_type}."
             self.ids.status.text = self.status
-            file_extension = "zip"
+            
+            # Establecer la extensión en función del algoritmo de compresión
+            if self.algorithm_type.lower() == "deflate":
+                file_extension = "zip"
+            elif self.algorithm_type.lower() == "bzip2":
+                file_extension = "bz2"
+            elif self.algorithm_type.lower() == "lzma2":
+                file_extension = "xz"
+            else:
+                file_extension = "zip"  # Por defecto usa zip si no se selecciona un algoritmo
         else:
+            # Para otros tipos de archivos, se obtiene la extensión de la ruta de archivo original
             file_extension = filepath.split('.')[-1].lower()  # Obtiene la extensión en minúsculas
-
+       
         #Comprobar si es .bmp
         if file_extension == "bmp":
             self.status = "El formato BMP se va a comprimir como png."

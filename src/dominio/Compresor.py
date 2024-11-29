@@ -40,23 +40,25 @@ class Compressor:
             tuple: (bool, str) Indica si la compresión fue exitosa y el mensaje o ruta del archivo.
         """
         try:
-            # Validar que la extensión del archivo de salida sea .zip
-            if not save_path.endswith(".zip"):
-                raise ValueError("La ruta de guardado debe tener extensión .zip.")
-
-            # Crear un archivo ZIP con el modo de compresión especificado
-            compression_method = {
-                "deflate": zipfile.ZIP_DEFLATED,  # Algoritmo Deflate
-                "bzip2": zipfile.ZIP_BZIP2,      # Algoritmo Bzip2
-                "lzma2": zipfile.ZIP_LZMA        # Algoritmo LZMA2
-            }.get(algorithm.lower())
-
-            if compression_method is None:
+            # Obtener la extensión correcta del archivo en función del algoritmo
+            if algorithm.lower() == "deflate":
+                if not save_path.endswith(".zip"):
+                    save_path += ".zip"  # Añadir extensión .zip si no está presente
+                compression_method = zipfile.ZIP_DEFLATED  # Algoritmo Deflate
+            elif algorithm.lower() == "bzip2":
+                if not save_path.endswith(".bz2"):
+                    save_path += ".bz2"  # Añadir extensión .bz2 si no está presente
+                compression_method = zipfile.ZIP_BZIP2  # Algoritmo Bzip2
+            elif algorithm.lower() == "lzma2":
+                if not save_path.endswith(".xz"):
+                    save_path += ".xz"  # Añadir extensión .xz si no está presente
+                compression_method = zipfile.ZIP_LZMA  # Algoritmo LZMA2
+            else:
                 raise ValueError("Algoritmo de compresión no soportado. Usa: deflate, bzip2, lzma2.")
 
-            # Crear el archivo ZIP y añadir el archivo de texto original
+            # Crear el archivo comprimido con el algoritmo especificado
             with zipfile.ZipFile(save_path, 'w', compression=compression_method) as zipf:
-                # Añadir el archivo al ZIP, conservando solo el nombre del archivo (sin la ruta completa)
+                # Añadir el archivo al archivo comprimido, conservando solo el nombre del archivo
                 zipf.write(filepath, arcname=os.path.basename(filepath))
 
             # Marcar el archivo como guardado en tu sistema (si tienes lógica adicional)
@@ -65,7 +67,7 @@ class Compressor:
 
         except Exception as e:
             return False, f"Error al comprimir el archivo: {str(e)}"
-        
+    
     def compress_image(self, filepath, quality, save_path=None):
         """
         Comprime una imagen y la guarda en la ubicación especificada.
