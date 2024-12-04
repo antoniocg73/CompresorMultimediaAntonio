@@ -1,15 +1,14 @@
 
-from PIL import Image, ImageSequence  # Módulo `Image` de la biblioteca PIL (Pillow).
+from PIL import Image, ImageSequence  
 from moviepy.editor import VideoFileClip
-from src.persistencia.guardar_archivo import SaveFile  # Clase para guardar archivos.
-from pydub import AudioSegment  # Importar AudioSegment de la biblioteca pydub.
+from src.persistencia.guardar_archivo import SaveFile  
+from pydub import AudioSegment  
 import pydub.utils
 import zipfile
 import os
 
 
 class Compressor:
-    """Clase `Compresor` para comprimir imágenes y videos con almacenamiento opcional."""
     def __init__(self):
         self.guardarArchivo = SaveFile()
         # Usar resourcePath para encontrar ffmpeg y ffprobe
@@ -29,15 +28,16 @@ class Compressor:
 
     def compress_text(self, filepath, save_path, algorithm):
         """
-        Comprime un archivo de texto utilizando el algoritmo de compresión especificado y lo guarda en un archivo ZIP.
+        Comprime un archivo de texto utilizando el algoritmo de compresión especificado.
         
-        Args:
+        Parámetros:
             filepath (str): Ruta del archivo original.
-            save_path (str): Ruta donde guardar el archivo comprimido (debe incluir ".zip").
-            algorithm (str): El algoritmo de compresión a utilizar ("deflate", "bzip2", "gzip", "lzma2").
+            save_path (str): Ruta donde guardar el archivo comprimido.
+            algorithm (str): El algoritmo de compresión a utilizar ("deflate", "bzip2", "lzma2").
         
-        Returns:
-            tuple: (bool, str) Indica si la compresión fue exitosa y el mensaje o ruta del archivo.
+        Retorna
+            (True, save_path): si la compresión es exitosa.
+            (False, mensaje de error): si ocurre un error.
         """
         try:
             # Obtener la extensión correcta del archivo en función del algoritmo
@@ -61,31 +61,31 @@ class Compressor:
                 # Añadir el archivo al archivo comprimido, conservando solo el nombre del archivo
                 zipf.write(filepath, arcname=os.path.basename(filepath))
 
-            # Marcar el archivo como guardado en tu sistema (si tienes lógica adicional)
-            self.guardarArchivo.save_file(save_path)  # Asumiendo que tienes una función 'save_file'
+            # Guardar con persistencia.
+            self.guardarArchivo.save_file(save_path)  
             return True, save_path
 
         except Exception as e:
             return False, f"Error al comprimir el archivo: {str(e)}"
     
-    def compress_image(self, filepath, quality, save_path=None):
+    def compress_image(self, filepath, quality, save_path):
         """
         Comprime una imagen y la guarda en la ubicación especificada.
         
         Parámetros:
         - filepath: ruta de la imagen original.
-        - quality: nivel de calidad para la compresión (1-100).
-        - save_path: ruta donde guardar la imagen comprimida. Si es None, se guarda junto a la original.
+        - quality: nivel de compresión
+        - save_path: ruta donde guardar la imagen comprimida.
 
         Retorna:
-        - (True, output_path): si la compresión es exitosa.
+        - (True, save_path): si la compresión es exitosa.
         - (False, mensaje de error): si ocurre un error.
         """
         try:
             img = Image.open(filepath)  # Abrir imagen original.
             file_extension = self.guardarArchivo.obtain_ext(filepath)  # Obtener extensión del archivo.
 
-            # Generar ruta de salida si no se proporciona `save_path`.
+            # Generar ruta de salida si no se proporciona 'save_path'.
             if save_path is None:
                 save_path = filepath.replace(file_extension, f'_compressed{file_extension}')
 
@@ -98,20 +98,20 @@ class Compressor:
 
             elif file_extension == '.png':
                 output_format = 'PNG'
-                compress_level = int((100 - (quality+1)) / 10)
+                compress_level = int((100 - (quality+1)) / 10) # Ajustar el nivel de compresión
                 img.save(save_path, output_format, compress_level=compress_level)
 
             elif file_extension == '.bmp': #Lo paso a PNG para reducir tamaño
                 output_format = 'PNG'  # Usar PNG en lugar de BMP.
 
                 # Determinar el nivel de compresión para PNG
-                compress_level = int((100 - (quality+1)) / 10)  # Ajustar el nivel de compresión (0 a 9)
+                compress_level = int((100 - (quality+1)) / 10)  
                 save_path = save_path.replace('.bmp', '.png')  # Cambiar la extensión a PNG
                 # Guardar la imagen en formato PNG
                 img.save(save_path, output_format, compress_level=compress_level)
             elif file_extension == '.tiff': # Convertir TIFF a JPEG para reducir tamaño
                 output_format = 'TIFF'
-                compression_mode = 'tiff_lzw'  # Método de compresión sin pérdida
+                compression_mode = 'tiff_lzw'  
                 
                 # Guardar el archivo TIFF con compresión LZW
                 img.save(save_path, output_format, compression=compression_mode)
@@ -122,17 +122,17 @@ class Compressor:
                 frames = []
                 prev_frame = None
 
-                # Usar `quality` para determinar el número de colores
-                num_colors = max(32, 256 - int((100 - quality+1) * 2))  # Asegurarse de que haya al menos 32 colores
+                # Usar 'quality' para determinar el número de colores
+                num_colors = max(32, 256 - int((100 - quality+1) * 2))  # Aseguramos un mínimo de 32 colores
 
                 # Iterar sobre los fotogramas de la imagen GIF
                 for frame in ImageSequence.Iterator(img):
-                    # Convertir el fotograma a una paleta reducida de colores según `quality`
+                    # Convertir el fotograma a una paleta reducida de colores según 'quality'
                     frame = frame.convert("P", palette=Image.ADAPTIVE, colors=num_colors)
 
                     # Compara el fotograma actual con el fotograma anterior
                     if prev_frame and frame.tobytes() == prev_frame.tobytes():
-                        continue  # Si es muy similar al anterior, omitirlo
+                        continue  # Si es muy similar al anterior, omitimos el fotograma
                     
                     # Agregar el fotograma a la lista de frames
                     frames.append(frame)
@@ -158,7 +158,17 @@ class Compressor:
         except Exception as e:
             return False, f"Error en la compresión de la imagen: {str(e)}"
 
-    def compress_video(self, filepath, save_path=None):
+    def compress_video(self, filepath, save_path):
+        """
+        Comprime un archivo de video y lo guarda en la ubicación especificada.
+        Parámetros:
+        - filepath: ruta de la imagen original.
+        - save_path: ruta donde guardar la imagen comprimida.
+
+        Retorna:
+        - (True, save_path): si la compresión es exitosa.
+        - (False, mensaje de error): si ocurre un error.
+        """
         try:
             # Cargar el archivo de video
             video = VideoFileClip(filepath)
@@ -215,7 +225,7 @@ class Compressor:
         except Exception as e:
             return False, f"Error al comprimir el video: {str(e)}"
     
-    def compress_audio(self, filepath, quality, save_path=None):
+    def compress_audio(self, filepath, quality, save_path):
         """
         Comprime un archivo de audio (MP3, WAV, AAC, FLAC, OGG, WMA) según la calidad especificada.
         
@@ -251,7 +261,7 @@ class Compressor:
             # Exportar el archivo de audio comprimido
             if file_format in ['mp3', 'wav', 'ogg', 'mp2', 'ac3']:  # Formatos soportados por pydub
                 bitrate = f"{min(max(quality, 32), 320)}k"  # Ajustar el bitrate entre 32 kbps y 320 kbps
-                audio.export(save_path, format=file_format, bitrate=bitrate)
+                audio.export(save_path, format=file_format, bitrate=bitrate) # Exportar el archivo de audio
             else:
                 return False, f"Formato de archivo '{file_format}' no compatible sin FFmpeg."
 
@@ -259,5 +269,5 @@ class Compressor:
         except Exception as e:
             return False, f"Error al comprimir el archivo de audio: {str(e)}"
     
-    def resourcePath(self, relative_path):
+    def resourcePath(self, relative_path): # Función para obtener la ruta de un recurso
         return self.guardarArchivo.resourcePath(relative_path)

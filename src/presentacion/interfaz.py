@@ -8,13 +8,7 @@ from kivy.core.window import Window
 from sqlalchemy import false
 from src.dominio.Compresor import Compressor
 
-
-
-
-
-
-
-
+# Cargar el archivo kv para el diseño de la interfaz
 Builder.load_string("""
 <CompressorInterface>:
     orientation: 'vertical'  # Orientación de los elementos en la interfaz
@@ -31,7 +25,7 @@ Builder.load_string("""
     FloatLayout: # Diseño de superposición para las imágenes
         Image:
             source: root.resourcePath('imagenes/reposteria.png')  # Ruta de la imagen
-            size_hint: None, None
+            size_hint: None, None # Desactivar el ajuste automático de tamaño
             size: 100, 100  # Tamaño de la imagen
             pos: 0, root.height - 100  # Esquina superior izquierda
 
@@ -112,7 +106,7 @@ Builder.load_string("""
         height: '30dp'  # Altura de la etiqueta
         text_size: self.size  # Ajustar el texto al tamaño de la etiqueta
         wrap: True  # Ajustar el texto si es demasiado largo
-        halign: 'center'  # Alineación horizontal (puedes cambiar a 'left' o 'right' según desees)
+        halign: 'center'  # Alineación horizontal 
         valign: 'middle'  # Alineación vertical
                     
     Widget: # Espacio en blanco para separar los elementos
@@ -139,7 +133,7 @@ Builder.load_string("""
             background_normal: root.resourcePath('imagenes/LeftArrow.png') 
             background_color: 0.8, 0.4, 0, 1
             color: 1, 1, 1, 1 
-            on_press: root.decrease_compression()
+            on_press: root.decrease_compression() # Disminuir el nivel de compresión
  
         TextInput: # TextInput para ingresar el nivel de compresión
             id: quality
@@ -163,7 +157,7 @@ Builder.load_string("""
             background_normal: root.resourcePath('imagenes/RightArrow.png') 
             background_color: 0.8, 0.4, 0, 1
             color: 1, 1, 1, 1
-            on_press: root.increase_compression()
+            on_press: root.increase_compression() # Aumentar el nivel de compresión
     
     BoxLayout: # BoxLayout para los formatos de texto
         id: algorithm_buttons
@@ -217,7 +211,7 @@ Builder.load_string("""
         text: "" 
         text_size: self.size  # Ajustar el texto al tamaño de la etiqueta
         wrap: True  # Ajustar el texto si es demasiado largo
-        halign: 'center'  # Alineación horizontal (puedes cambiar a 'left' o 'right' según desees)
+        halign: 'center'  # Alineación horizontal 
         valign: 'middle'  # Alineación vertical
                     
     Widget: # Espacio en blanco para separar los elementos
@@ -230,7 +224,7 @@ class CompressorInterface(BoxLayout):
     
     def __init__(self, **kwargs): #
         super().__init__(**kwargs)
-        self.compressor = Compressor()  # Instanciar la clase Compresor desde la capa de dominio
+        self.compressor = Compressor()  # Inicializar el compresor
         # Ocultar la ventana principal de Tkinter, ya que solo se necesita el diálogo para seleccionar archivos y no toda la ventana.
         Tk().withdraw()
 
@@ -240,13 +234,13 @@ class CompressorInterface(BoxLayout):
         Window.minimum_width = 850  
         Window.minimum_height = 600  
 
-        #Inicio con texto marcado
+        #Inicio con la opción de texto marcado
         self.file_type = "Texto"
         self.set_file_type("Texto", self.ids.text_button) # Iniciar con el botón de texto seleccionado
 
 
 
-    #En Kivy, las propiedades como StringProperty, NumericProperty, y BooleanProperty no deben asignarse dentro del __init__ directamente.
+    #En Kivy, las propiedades como StringProperty, NumericProperty, y BooleanProperty no deben asignarse dentro del __init__, sino directamente.
     selected_file = StringProperty("No se ha seleccionado ningún archivo") # Variable para la ruta del archivo seleccionado
     file_type = StringProperty("")  # Variable para el tipo de archivo seleccionado
     algorithm_type = StringProperty("")  # Variable para el tipo de algoritmo seleccionado
@@ -260,25 +254,24 @@ class CompressorInterface(BoxLayout):
     #Establece el tipo de archivo seleccionado, cambia el color del botón y deselecciona otros en las opciones de archivo.
     def set_file_type(self, file_type, button):
         self.reset_new_path_with_delay()
-        #self.file_type = f"Archivo seleccionado: {file_type}"  # Formato con "Archivo seleccionado"
         self.file_type = file_type
         # Desactivar la selección de otros botones
         for btn in self.ids.file_buttons.children:
             btn.background_color = (0.8, 0.4, 0, 1)  # Resetear color
-        # Resaltar el botón seleccionado
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
-        if self.file_type == "Video" or self.file_type == "Audio":
+        if self.file_type == "Video" or self.file_type == "Audio": # Si el archivo es de video o audio, no se puede seleccionar un nivel de compresión
             self.enter_compression_layout()
             self.clean_algorithm_buttons()
             self.avoid_level_compression("No hay opción de nivel de compresión de " +self.file_type + ".")
-        elif self.file_type == "Texto":
+        elif self.file_type == "Texto": # Si el archivo es de texto, se puede seleccionar un algoritmo de compresión
             self.enter_algorithm_layout()
             self.avoid_level_compression("No hay opción de nivel de compresión para archivos de texto.")
-        else:
+        else: # Para otros tipos de archivos (imágenes), se puede seleccionar un nivel de compresión
             self.enter_compression_layout()
             self.clean_algorithm_buttons()
             self.enter_compression_level("Ingrese el nivel de compresión deseado (50 - mínima, 100 - máxima).")
 
+    #Establece el tipo de algoritmo seleccionado, cambia el color del botón y deselecciona otros en las opciones de algoritmo.
     def set_algorithm_type(self, algorithm_type, button):
         self.reset_new_path_with_delay()
         self.algorithm_type = algorithm_type
@@ -288,10 +281,8 @@ class CompressorInterface(BoxLayout):
         # Resaltar el botón seleccionado
         button.background_color = ((1, 0.5, 0, 1))  # Resaltar el botón seleccionado
 
+    #Limpiar la selección del algoritmo y desmarcar los botones.
     def clean_algorithm_buttons(self):
-        """
-        Limpiar la selección del algoritmo y desmarcar los botones.
-        """
         self.algorithm_type = ""  # Reiniciar el algoritmo seleccionado
         
         # Desmarcar los botones
@@ -324,6 +315,7 @@ class CompressorInterface(BoxLayout):
             self.file_path_entero = f"Archivo seleccionado: {file_path}" # Actualizar la etiqueta de la ruta
             self.ids.file_path.text = self.file_path_entero
 
+    #Cambiar el diseño de la interfaz para mostrar los botones de compresión y ocultar los de algoritmos.
     def enter_compression_layout(self):
         self.ids.compression_buttons.height = 50  # Mostrar compresión
         self.ids.compression_buttons.opacity = 1
@@ -332,6 +324,7 @@ class CompressorInterface(BoxLayout):
         self.ids.algorithm_buttons.opacity = 0
         self.ids.algorithm_buttons.size_hint_y = None
 
+    #Cambiar el diseño de la interfaz para mostrar los botones de algoritmos y ocultar los de compresión.
     def enter_algorithm_layout(self):
         self.ids.compression_buttons.height = 0  # Ocultar compresión
         self.ids.compression_buttons.opacity = 0
@@ -340,6 +333,7 @@ class CompressorInterface(BoxLayout):
         self.ids.algorithm_buttons.opacity = 1
         self.ids.algorithm_buttons.size_hint_y = 1
 
+    #Oculta el nivel de compresión y los botones de aumento y disminución.
     def avoid_level_compression(self, message):
             # Ocultar o deshabilitar el TextInput
             self.ids.quality.opacity = 0  # Ocultar el TextInput
@@ -359,6 +353,7 @@ class CompressorInterface(BoxLayout):
             self.ids.compression_label.size_hint_x = None  # Permitir que el label ocupe todo el espacio
             self.ids.compression_label.width = self.width  # Ajustar el ancho del label al ancho de la ventana
     
+    #Oculta el nivel de compresión y los botones de aumento y disminución.
     def enter_compression_level(self, message):
             # Restaurar el TextInput para otros archivos
             self.ids.quality.opacity = 1
@@ -367,10 +362,8 @@ class CompressorInterface(BoxLayout):
             # Restaurar los botones
             self.ids.decrease_button.opacity = 1  # Hacer visibles los botones
             self.ids.decrease_button.size_hint_x = 0.2  # Restaurar tamaño horizontal
-            #self.ids.decrease_button.width = '40dp'  # Restaurar ancho
             self.ids.increase_button.opacity = 1
             self.ids.increase_button.size_hint_x = 0.2
-            #self.ids.increase_button.width = '40dp'
             
             # Limpiar cualquier mensaje previo
             self.ids.compression_label.text = message
@@ -426,16 +419,17 @@ class CompressorInterface(BoxLayout):
         self.selected_file = "No se ha seleccionado ningún archivo"
         self.ids.file_path.text = self.selected_file
     
+    #Restablece el texto del Label de estado.
     def reset_new_path(self):
         self.status = ""
         self.ids.status.text = self.status
 
+    #Comprime el archivo seleccionado según el tipo y la calidad especificados.
     def compress_file(self, filepath, quality):
-        #Comprimir el archivo según el tipo seleccionado y la calidad proporcionada.
-        # Limpiar el texto del Label de estado al presionar el botón de compresión
         self.status = ""
         self.ids.status.text = self.status
         
+        # Verificar si se seleccionó un archivo
         if not filepath or filepath == "No se ha seleccionado ningún archivo":
             self.status = "Seleccione un archivo para comprimir."
             self.ids.status.text = self.status
@@ -455,7 +449,7 @@ class CompressorInterface(BoxLayout):
             self.ids.status.text = self.status
             return
 
-       # Obtener la extensión del archivo que se va a comprimir de texto
+        # Obtener la extensión del archivo que se va a comprimir de texto
         if self.file_type == "Texto":
             self.status = f"El formato de texto se va a comprimir utilizando el algoritmo {self.algorithm_type}."
             self.ids.status.text = self.status
@@ -508,20 +502,18 @@ class CompressorInterface(BoxLayout):
             self.status = "Formato de archivo no compatible."
             self.ids.status.text = self.status
             return
-
    
         # Mostrar el mensaje de éxito si se completó la compresión
         if result[0]:
             self.status = f"Archivo comprimido guardado en: {result[1]}"
             self.ids.status.text = self.status
-
         else:
             self.status = result[1]  # Mostrar el mensaje de error
             self.ids.status.text = self.status  # Actualizar el texto del Label de estado
         self.reset_file_path_with_delay()
         self.reset_compression_level()
         
-
+    # Devuelve la ruta absoluta del recurso, con barras hacia adelante.
     def resourcePath(self, relative_path):
         if not hasattr(self, 'compressor'):
             self.compressor = Compressor()  # Asegurarse de que el compresor esté inicializado

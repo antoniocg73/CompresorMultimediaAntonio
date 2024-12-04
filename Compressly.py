@@ -22,8 +22,7 @@ class CompresslyApp(App): # Coge como nombre Compressly
         # Construye la ruta completa
         full_path = os.path.join(base_path, relative_path)
 
-        # Normaliza las barras a `/` (opcional para sistemas Windows)
-        print(full_path.replace("\\", "/"))
+        # Normaliza las barras a '/' (opcional para sistemas Windows)
         return full_path.replace("\\", "/")
 
 if __name__ == "__main__":

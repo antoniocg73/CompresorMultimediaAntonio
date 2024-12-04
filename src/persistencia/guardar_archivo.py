@@ -26,7 +26,7 @@ class SaveFile:
         # Construye la ruta completa
         full_path = os.path.join(base_path, relative_path)
 
-        # Normaliza las barras a `/` (opcional para sistemas Windows)
+        # Normaliza las barras a '/'
         return full_path.replace("\\", "/")
     
     
